@@ -11,27 +11,21 @@
 
 OUT='/work/lylab/dx99793/Dawei_RNAseq'
 CDNA='https://ftp.ensemblgenomes.ebi.ac.uk/pub/plants/release-58/fasta/arabidopsis_thaliana/cdna/Arabidopsis_thaliana.TAIR10.cdna.all.fa.gz'
-WGS='https://ftp.ensemblgenomes.ebi.ac.uk/pub/plants/release-58/fasta/arabidopsis_thaliana/dna/Arabidopsis_thaliana.TAIR10.dna.toplevel.fa.gz'
 
 ml FastQC/0.11.9-Java-11
 ml SAMtools/1.16.1-GCC-11.3.0
 ml Salmon/1.9.0-GCC-11.3.0
 
-gunzip -k $OUT/*.fastq.gz
-mkdir -p $OUT/fastqc
-fastqc $OUT/*.fastq -o $OUT/fastqc
-mkdir -p $OUT/fastqc/all
-unzip $OUT/fastqc/\*.zip -d $OUT/fastqc/all
-find $OUT/fastqc/all -type f -name 'summary.txt' -exec cat {} \; > $OUT/fastqc/all/combined_summary.txt
-grep FAIL $OUT/fastqc/all/combined_summary.txt > $OUT/fastqc/all/fail_summary.txt
+#gunzip -k $OUT/*.fastq.gz
+#mkdir -p $OUT/fastqc
+#fastqc $OUT/*.fastq -o $OUT/fastqc
+#mkdir -p $OUT/fastqc/all
+#unzip $OUT/fastqc/\*.zip -d $OUT/fastqc/all
+#find $OUT/fastqc/all -type f -name 'summary.txt' -exec cat {} \; > $OUT/fastqc/all/combined_summary.txt
+#grep FAIL $OUT/fastqc/all/combined_summary.txt > $OUT/fastqc/all/fail_summary.txt
 
-curl -s $CDNA > $OUT/TAIR10.fa.gz
-gunzip -c $OUT/TAIR10.fa.gz > $OUT/TAIR10.fa
-curl -s $WGS > $OUT/TAIR10_WGS.fa.gz
-grep '^>' <(gunzip -c $OUT/TAIR10_WGS.fa.gz) | cut -f ' ' -f 1 > $OUT/decoys.txt
-sed -i.bak -e 's/>//g' decoys.txt
-cat $OUT/TAIR10.fa.gz $OUT/TAIR10_WGS.fa.gz > $OUT/gentrome.fa.gz
-salmon index -t $OUT/gentrome.fa.gz -d $OUT/decoys.txt -p 12 -i $OUT/TAIR10.idx --gencode
+curl -s $CDNA | gunzip -c > $OUT/TAIR10.fa
+salmon index -t $OUT/TAIR10.fa -p 12 -i $OUT/TAIR10.idx
 mkdir -p $OUT/salmon
 for file_1 in $OUT/*_R1_*.fastq; do
 	prefix="${file_1%_R1_001.fastq}"
