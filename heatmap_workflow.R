@@ -1,10 +1,14 @@
-work <- ("/work/lylab/cjn40747/dawei_RNA/counts")
+setwd("C:/Users/cnewt/Yang/Dawei_RNA/counts") #For local computer
+work <- ("/work/lylab/cjn40747/dawei_RNA/counts") #For Sapelo2
 setwd(work)
 
+#This script uses the conda environment "heatmap"
 library(edgeR)
 library(RColorBrewer)
 library(pheatmap)
 library(tibble)
+library(tidyverse)
+library(dplyr)
 
 set.seed(1)
 
@@ -202,10 +206,489 @@ compiled_contrasts <- makeContrasts(
   col_tga6 = D.5-A.5,
   col_tga24 = D.6-A.6,
   col_tga48 = D.7-A.7,
+  sid_tga0 = C.1-D.1,
+  sid_tga10 = C.2-D.2,
+  sid_tga30 = C.3-D.3,
+  sid_tga1 = C.4-D.4,
+  sid_tga6 = C.5-D.5,
+  sid_tga24 = C.6-D.6,
+  sid_tga48 = C.7-D.7,
   levels = meta_compiled)
-col10_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'col10'])
-col10_deg_filter <- topTags(col10_deg)
-FDR <- p.adjust(col10_deg$table$PValue, method = 'BH')
-sum(FDR < 0.05)
-summary(decideTests(col10_deg))
-plotMD(col10_deg)
+
+##Analysis 1----
+###24 hour----
+A1_col24_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'col24'])
+A1_col24_deg_list <- topTags(A1_col24_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A1_col24_deg_df <- A1_col24_deg_list$table
+A1_col24_deg_df <- A1_col24_deg_df[A1_col24_deg_df$logFC > 0.5, ]
+A1_col24_deg_df <- rownames_to_column(A1_col24_deg_df, var = 'Gene')
+names(A1_col24_deg_df) <- c('Gene', 'logFC_Col0', 'logCPM_Col0', 'F_Col0', 'Pvalue_Col0', 'FDR_Col0')
+
+A1_sid24_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'sid24'])
+A1_sid24_deg_list <- topTags(A1_sid24_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A1_sid24_deg_df <- A1_sid24_deg_list$table
+A1_sid24_deg_df <- A1_sid24_deg_df[A1_sid24_deg_df$logFC > 0.5, ]
+A1_sid24_deg_df <- rownames_to_column(A1_sid24_deg_df, var = 'Gene')
+names(A1_sid24_deg_df) <- c('Gene', 'logFC_sid2', 'logCPM_sid2', 'F_sid2', 'Pvalue_sid2', 'FDR_sid2')
+
+A1_tga24_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'tga24'])
+A1_tga24_deg_list <- topTags(A1_tga24_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A1_tga24_deg_df <- A1_tga24_deg_list$table
+A1_tga24_deg_df <- A1_tga24_deg_df[A1_tga24_deg_df$logFC < -0.5, ]
+A1_tga24_deg_df <- rownames_to_column(A1_tga24_deg_df, var = 'Gene')
+names(A1_tga24_deg_df) <- c('Gene', 'logFC_tga256', 'logCPM_tga256', 'F_tga256', 'Pvalue_tga256', 'FDR_tga256')
+
+A1_DEG_list_24 <- list(A1_col24_deg_df, A1_sid24_deg_df, A1_tga24_deg_df)
+A1_DEG_compiled_24 <- A1_DEG_list_24 %>% reduce(full_join, by = 'Gene')
+A1_DEG_compiled_24 <- na.omit(A1_DEG_compiled_24)
+write.csv(A1_DEG_compiled_24, 'A1_24_deg_df.csv')
+
+
+###10 min----
+A1_col10_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'col10'])
+A1_col10_deg_list <- topTags(A1_col10_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A1_col10_deg_df <- A1_col10_deg_list$table
+A1_col10_deg_df <- A1_col10_deg_df[A1_col10_deg_df$logFC > 0.5, ]
+A1_col10_deg_df <- rownames_to_column(A1_col10_deg_df, var = 'Gene')
+names(A1_col10_deg_df) <- c('Gene', 'logFC_Col0', 'logCPM_Col0', 'F_Col0', 'Pvalue_Col0', 'FDR_Col0')
+
+A1_sid10_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'sid10'])
+A1_sid10_deg_list <- topTags(A1_sid10_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A1_sid10_deg_df <- A1_sid10_deg_list$table
+A1_sid10_deg_df <- A1_sid10_deg_df[A1_sid10_deg_df$logFC > 0.5, ]
+A1_sid10_deg_df <- rownames_to_column(A1_sid10_deg_df, var = 'Gene')
+names(A1_sid10_deg_df) <- c('Gene', 'logFC_sid2', 'logCPM_sid2', 'F_sid2', 'Pvalue_sid2', 'FDR_sid2')
+
+A1_tga10_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'tga10'])
+A1_tga10_deg_list <- topTags(A1_tga10_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A1_tga10_deg_df <- A1_tga10_deg_list$table
+A1_tga10_deg_df <- A1_tga10_deg_df[A1_tga10_deg_df$logFC < -0.5, ]
+A1_tga10_deg_df <- rownames_to_column(A1_tga10_deg_df, var = 'Gene')
+names(A1_tga10_deg_df) <- c('Gene', 'logFC_tga256', 'logCPM_tga256', 'F_tga256', 'Pvalue_tga256', 'FDR_tga256')
+
+A1_DEG_list_10 <- list(A1_col10_deg_df, A1_sid10_deg_df, A1_tga10_deg_df)
+A1_DEG_compiled_10 <- A1_DEG_list_10 %>% reduce(full_join, by = 'Gene')
+A1_DEG_compiled_10 <- na.omit(A1_DEG_compiled_10)
+write.csv(A1_DEG_compiled_10, 'A1_10_deg_df.csv')
+
+###30 min----
+A1_col30_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'col30'])
+A1_col30_deg_list <- topTags(A1_col30_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A1_col30_deg_df <- A1_col30_deg_list$table
+A1_col30_deg_df <- A1_col30_deg_df[A1_col30_deg_df$logFC > 0.5, ]
+A1_col30_deg_df <- rownames_to_column(A1_col30_deg_df, var = 'Gene')
+names(A1_col30_deg_df) <- c('Gene', 'logFC_Col0', 'logCPM_Col0', 'F_Col0', 'Pvalue_Col0', 'FDR_Col0')
+
+A1_sid30_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'sid30'])
+A1_sid30_deg_list <- topTags(A1_sid30_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A1_sid30_deg_df <- A1_sid30_deg_list$table
+A1_sid30_deg_df <- A1_sid30_deg_df[A1_sid30_deg_df$logFC > 0.5, ]
+A1_sid30_deg_df <- rownames_to_column(A1_sid30_deg_df, var = 'Gene')
+names(A1_sid30_deg_df) <- c('Gene', 'logFC_sid2', 'logCPM_sid2', 'F_sid2', 'Pvalue_sid2', 'FDR_sid2')
+
+A1_tga30_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'tga30'])
+A1_tga30_deg_list <- topTags(A1_tga30_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A1_tga30_deg_df <- A1_tga30_deg_list$table
+A1_tga30_deg_df <- A1_tga30_deg_df[A1_tga30_deg_df$logFC < -0.5, ]
+A1_tga30_deg_df <- rownames_to_column(A1_tga30_deg_df, var = 'Gene')
+names(A1_tga30_deg_df) <- c('Gene', 'logFC_tga256', 'logCPM_tga256', 'F_tga256', 'Pvalue_tga256', 'FDR_tga256')
+
+A1_DEG_list_30 <- list(A1_col30_deg_df, A1_sid30_deg_df, A1_tga30_deg_df)
+A1_DEG_compiled_30 <- A1_DEG_list_30 %>% reduce(full_join, by = 'Gene')
+A1_DEG_compiled_30 <- na.omit(A1_DEG_compiled_30)
+write.csv(A1_DEG_compiled_30, 'A1_30_deg_df.csv')
+
+###1 hour----
+A1_col1_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'col1'])
+A1_col1_deg_list <- topTags(A1_col1_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A1_col1_deg_df <- A1_col1_deg_list$table
+A1_col1_deg_df <- A1_col1_deg_df[A1_col1_deg_df$logFC > 0.5, ]
+A1_col1_deg_df <- rownames_to_column(A1_col1_deg_df, var = 'Gene')
+names(A1_col1_deg_df) <- c('Gene', 'logFC_Col0', 'logCPM_Col0', 'F_Col0', 'Pvalue_Col0', 'FDR_Col0')
+
+A1_sid1_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'sid1'])
+A1_sid1_deg_list <- topTags(A1_sid1_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A1_sid1_deg_df <- A1_sid1_deg_list$table
+A1_sid1_deg_df <- A1_sid1_deg_df[A1_sid1_deg_df$logFC > 0.5, ]
+A1_sid1_deg_df <- rownames_to_column(A1_sid1_deg_df, var = 'Gene')
+names(A1_sid1_deg_df) <- c('Gene', 'logFC_sid2', 'logCPM_sid2', 'F_sid2', 'Pvalue_sid2', 'FDR_sid2')
+
+A1_tga1_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'tga1'])
+A1_tga1_deg_list <- topTags(A1_tga1_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A1_tga1_deg_df <- A1_tga1_deg_list$table
+A1_tga1_deg_df <- A1_tga1_deg_df[A1_tga1_deg_df$logFC < -0.5, ]
+A1_tga1_deg_df <- rownames_to_column(A1_tga1_deg_df, var = 'Gene')
+names(A1_tga1_deg_df) <- c('Gene', 'logFC_tga256', 'logCPM_tga256', 'F_tga256', 'Pvalue_tga256', 'FDR_tga256')
+
+A1_DEG_list_1 <- list(A1_col1_deg_df, A1_sid1_deg_df, A1_tga1_deg_df)
+A1_DEG_compiled_1 <- A1_DEG_list_1 %>% reduce(full_join, by = 'Gene')
+A1_DEG_compiled_1 <- na.omit(A1_DEG_compiled_1)
+write.csv(A1_DEG_compiled_1, 'A1_1_deg_df.csv')
+
+###6 hour----
+A1_col6_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'col6'])
+A1_col6_deg_list <- topTags(A1_col6_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A1_col6_deg_df <- A1_col6_deg_list$table
+A1_col6_deg_df <- A1_col6_deg_df[A1_col6_deg_df$logFC > 0.5, ]
+A1_col6_deg_df <- rownames_to_column(A1_col6_deg_df, var = 'Gene')
+names(A1_col6_deg_df) <- c('Gene', 'logFC_Col0', 'logCPM_Col0', 'F_Col0', 'Pvalue_Col0', 'FDR_Col0')
+
+A1_sid6_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'sid6'])
+A1_sid6_deg_list <- topTags(A1_sid6_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A1_sid6_deg_df <- A1_sid6_deg_list$table
+A1_sid6_deg_df <- A1_sid6_deg_df[A1_sid6_deg_df$logFC > 0.5, ]
+A1_sid6_deg_df <- rownames_to_column(A1_sid6_deg_df, var = 'Gene')
+names(A1_sid6_deg_df) <- c('Gene', 'logFC_sid2', 'logCPM_sid2', 'F_sid2', 'Pvalue_sid2', 'FDR_sid2')
+
+A1_tga6_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'tga6'])
+A1_tga6_deg_list <- topTags(A1_tga6_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A1_tga6_deg_df <- A1_tga6_deg_list$table
+A1_tga6_deg_df <- A1_tga6_deg_df[A1_tga6_deg_df$logFC < -0.5, ]
+A1_tga6_deg_df <- rownames_to_column(A1_tga6_deg_df, var = 'Gene')
+names(A1_tga6_deg_df) <- c('Gene', 'logFC_tga256', 'logCPM_tga256', 'F_tga256', 'Pvalue_tga256', 'FDR_tga256')
+
+A1_DEG_list_6 <- list(A1_col6_deg_df, A1_sid6_deg_df, A1_tga6_deg_df)
+A1_DEG_compiled_6 <- A1_DEG_list_6 %>% reduce(full_join, by = 'Gene')
+A1_DEG_compiled_6 <- na.omit(A1_DEG_compiled_6)
+write.csv(A1_DEG_compiled_6, 'A1_6_deg_df.csv')
+
+###48 hour----
+A1_col48_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'col48'])
+A1_col48_deg_list <- topTags(A1_col48_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A1_col48_deg_df <- A1_col48_deg_list$table
+A1_col48_deg_df <- A1_col48_deg_df[A1_col48_deg_df$logFC > 0.5, ]
+A1_col48_deg_df <- rownames_to_column(A1_col48_deg_df, var = 'Gene')
+names(A1_col48_deg_df) <- c('Gene', 'logFC_Col0', 'logCPM_Col0', 'F_Col0', 'Pvalue_Col0', 'FDR_Col0')
+
+A1_sid48_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'sid48'])
+A1_sid48_deg_list <- topTags(A1_sid48_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A1_sid48_deg_df <- A1_sid48_deg_list$table
+A1_sid48_deg_df <- A1_sid48_deg_df[A1_sid48_deg_df$logFC > 0.5, ]
+A1_sid48_deg_df <- rownames_to_column(A1_sid48_deg_df, var = 'Gene')
+names(A1_sid48_deg_df) <- c('Gene', 'logFC_sid2', 'logCPM_sid2', 'F_sid2', 'Pvalue_sid2', 'FDR_sid2')
+
+A1_tga48_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'tga48'])
+A1_tga48_deg_list <- topTags(A1_tga48_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A1_tga48_deg_df <- A1_tga48_deg_list$table
+A1_tga48_deg_df <- A1_tga48_deg_df[A1_tga48_deg_df$logFC < -0.5, ]
+A1_tga48_deg_df <- rownames_to_column(A1_tga48_deg_df, var = 'Gene')
+names(A1_tga48_deg_df) <- c('Gene', 'logFC_tga256', 'logCPM_tga256', 'F_tga256', 'Pvalue_tga256', 'FDR_tga256')
+
+A1_DEG_list_48 <- list(A1_col48_deg_df, A1_sid48_deg_df, A1_tga48_deg_df)
+A1_DEG_compiled_48 <- A1_DEG_list_48 %>% reduce(full_join, by = 'Gene')
+A1_DEG_compiled_48 <- na.omit(A1_DEG_compiled_48)
+write.csv(A1_DEG_compiled_48, 'A1_48_deg_df.csv')
+
+##Analysis 2----
+###24 hour----
+A2_col24_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'col24'])
+A2_col24_deg_list <- topTags(A2_col24_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A2_col24_deg_df <- A2_col24_deg_list$table
+A2_col24_deg_df <- A2_col24_deg_df[A2_col24_deg_df$logFC < -0.5, ]
+A2_col24_deg_df <- rownames_to_column(A2_col24_deg_df, var = 'Gene')
+names(A2_col24_deg_df) <- c('Gene', 'logFC_Col0', 'logCPM_Col0', 'F_Col0', 'Pvalue_Col0', 'FDR_Col0')
+
+A2_sid24_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'sid24'])
+A2_sid24_deg_list <- topTags(A2_sid24_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A2_sid24_deg_df <- A2_sid24_deg_list$table
+A2_sid24_deg_df <- A2_sid24_deg_df[A2_sid24_deg_df$logFC < -0.5, ]
+A2_sid24_deg_df <- rownames_to_column(A2_sid24_deg_df, var = 'Gene')
+names(A2_sid24_deg_df) <- c('Gene', 'logFC_sid2', 'logCPM_sid2', 'F_sid2', 'Pvalue_sid2', 'FDR_sid2')
+
+A2_tga24_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'tga24'])
+A2_tga24_deg_list <- topTags(A2_tga24_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A2_tga24_deg_df <- A2_tga24_deg_list$table
+A2_tga24_deg_df <- A2_tga24_deg_df[A2_tga24_deg_df$logFC > 0.5, ]
+A2_tga24_deg_df <- rownames_to_column(A2_tga24_deg_df, var = 'Gene')
+names(A2_tga24_deg_df) <- c('Gene', 'logFC_tga256', 'logCPM_tga256', 'F_tga256', 'Pvalue_tga256', 'FDR_tga256')
+
+A2_DEG_list_24 <- list(A2_col24_deg_df, A2_sid24_deg_df, A2_tga24_deg_df)
+A2_DEG_compiled_24 <- A2_DEG_list_24 %>% reduce(full_join, by = 'Gene')
+A2_DEG_compiled_24 <- na.omit(A2_DEG_compiled_24)
+write.csv(A2_DEG_compiled_24, 'A2_24_deg_df.csv')
+
+###10 min----
+A2_col10_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'col10'])
+A2_col10_deg_list <- topTags(A2_col10_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A2_col10_deg_df <- A2_col10_deg_list$table
+A2_col10_deg_df <- A2_col10_deg_df[A2_col10_deg_df$logFC < -0.5, ]
+A2_col10_deg_df <- rownames_to_column(A2_col10_deg_df, var = 'Gene')
+names(A2_col10_deg_df) <- c('Gene', 'logFC_Col0', 'logCPM_Col0', 'F_Col0', 'Pvalue_Col0', 'FDR_Col0')
+
+A2_sid10_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'sid10'])
+A2_sid10_deg_list <- topTags(A2_sid10_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A2_sid10_deg_df <- A2_sid10_deg_list$table
+A2_sid10_deg_df <- A2_sid10_deg_df[A2_sid10_deg_df$logFC < -0.5, ]
+A2_sid10_deg_df <- rownames_to_column(A2_sid10_deg_df, var = 'Gene')
+names(A2_sid10_deg_df) <- c('Gene', 'logFC_sid2', 'logCPM_sid2', 'F_sid2', 'Pvalue_sid2', 'FDR_sid2')
+
+A2_tga10_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'tga10'])
+A2_tga10_deg_list <- topTags(A2_tga10_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A2_tga10_deg_df <- A2_tga10_deg_list$table
+A2_tga10_deg_df <- A2_tga10_deg_df[A2_tga10_deg_df$logFC > 0.5, ]
+A2_tga10_deg_df <- rownames_to_column(A2_tga10_deg_df, var = 'Gene')
+names(A2_tga10_deg_df) <- c('Gene', 'logFC_tga256', 'logCPM_tga256', 'F_tga256', 'Pvalue_tga256', 'FDR_tga256')
+
+A2_DEG_list_10 <- list(A2_col10_deg_df, A2_sid10_deg_df, A2_tga10_deg_df)
+A2_DEG_compiled_10 <- A2_DEG_list_10 %>% reduce(full_join, by = 'Gene')
+A2_DEG_compiled_10 <- na.omit(A2_DEG_compiled_10)
+write.csv(A2_DEG_compiled_10, 'A2_10_deg_df.csv')
+
+###30 min----
+A2_col30_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'col30'])
+A2_col30_deg_list <- topTags(A2_col30_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A2_col30_deg_df <- A2_col30_deg_list$table
+A2_col30_deg_df <- A2_col30_deg_df[A2_col30_deg_df$logFC < -0.5, ]
+A2_col30_deg_df <- rownames_to_column(A2_col30_deg_df, var = 'Gene')
+names(A2_col30_deg_df) <- c('Gene', 'logFC_Col0', 'logCPM_Col0', 'F_Col0', 'Pvalue_Col0', 'FDR_Col0')
+
+A2_sid30_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'sid30'])
+A2_sid30_deg_list <- topTags(A2_sid30_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A2_sid30_deg_df <- A2_sid30_deg_list$table
+A2_sid30_deg_df <- A2_sid30_deg_df[A2_sid30_deg_df$logFC < -0.5, ]
+A2_sid30_deg_df <- rownames_to_column(A2_sid30_deg_df, var = 'Gene')
+names(A2_sid30_deg_df) <- c('Gene', 'logFC_sid2', 'logCPM_sid2', 'F_sid2', 'Pvalue_sid2', 'FDR_sid2')
+
+A2_tga30_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'tga30'])
+A2_tga30_deg_list <- topTags(A2_tga30_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A2_tga30_deg_df <- A2_tga30_deg_list$table
+A2_tga30_deg_df <- A2_tga30_deg_df[A2_tga30_deg_df$logFC > 0.5, ]
+A2_tga30_deg_df <- rownames_to_column(A2_tga30_deg_df, var = 'Gene')
+names(A2_tga30_deg_df) <- c('Gene', 'logFC_tga256', 'logCPM_tga256', 'F_tga256', 'Pvalue_tga256', 'FDR_tga256')
+
+A2_DEG_list_30 <- list(A2_col30_deg_df, A2_sid30_deg_df, A2_tga30_deg_df)
+A2_DEG_compiled_30 <- A2_DEG_list_30 %>% reduce(full_join, by = 'Gene')
+A2_DEG_compiled_30 <- na.omit(A2_DEG_compiled_30)
+write.csv(A2_DEG_compiled_30, 'A2_30_deg_df.csv')
+
+###1 hour----
+A2_col1_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'col1'])
+A2_col1_deg_list <- topTags(A2_col1_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A2_col1_deg_df <- A2_col1_deg_list$table
+A2_col1_deg_df <- A2_col1_deg_df[A2_col1_deg_df$logFC < -0.5, ]
+A2_col1_deg_df <- rownames_to_column(A2_col1_deg_df, var = 'Gene')
+names(A2_col1_deg_df) <- c('Gene', 'logFC_Col0', 'logCPM_Col0', 'F_Col0', 'Pvalue_Col0', 'FDR_Col0')
+
+A2_sid1_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'sid1'])
+A2_sid1_deg_list <- topTags(A2_sid1_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A2_sid1_deg_df <- A2_sid1_deg_list$table
+A2_sid1_deg_df <- A2_sid1_deg_df[A2_sid1_deg_df$logFC < -0.5, ]
+A2_sid1_deg_df <- rownames_to_column(A2_sid1_deg_df, var = 'Gene')
+names(A2_sid1_deg_df) <- c('Gene', 'logFC_sid2', 'logCPM_sid2', 'F_sid2', 'Pvalue_sid2', 'FDR_sid2')
+
+A2_tga1_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'tga1'])
+A2_tga1_deg_list <- topTags(A2_tga1_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A2_tga1_deg_df <- A2_tga1_deg_list$table
+A2_tga1_deg_df <- A2_tga1_deg_df[A2_tga1_deg_df$logFC > 0.5, ]
+A2_tga1_deg_df <- rownames_to_column(A2_tga1_deg_df, var = 'Gene')
+names(A2_tga1_deg_df) <- c('Gene', 'logFC_tga256', 'logCPM_tga256', 'F_tga256', 'Pvalue_tga256', 'FDR_tga256')
+
+A2_DEG_list_1 <- list(A2_col1_deg_df, A2_sid1_deg_df, A2_tga1_deg_df)
+A2_DEG_compiled_1 <- A2_DEG_list_1 %>% reduce(full_join, by = 'Gene')
+A2_DEG_compiled_1 <- na.omit(A2_DEG_compiled_1)
+write.csv(A2_DEG_compiled_1, 'A2_1_deg_df.csv')
+
+###6 hour----
+A2_col6_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'col6'])
+A2_col6_deg_list <- topTags(A2_col6_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A2_col6_deg_df <- A2_col6_deg_list$table
+A2_col6_deg_df <- A2_col6_deg_df[A2_col6_deg_df$logFC < -0.5, ]
+A2_col6_deg_df <- rownames_to_column(A2_col6_deg_df, var = 'Gene')
+names(A2_col6_deg_df) <- c('Gene', 'logFC_Col0', 'logCPM_Col0', 'F_Col0', 'Pvalue_Col0', 'FDR_Col0')
+
+A2_sid6_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'sid6'])
+A2_sid6_deg_list <- topTags(A2_sid6_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A2_sid6_deg_df <- A2_sid6_deg_list$table
+A2_sid6_deg_df <- A2_sid6_deg_df[A2_sid6_deg_df$logFC < -0.5, ]
+A2_sid6_deg_df <- rownames_to_column(A2_sid6_deg_df, var = 'Gene')
+names(A2_sid6_deg_df) <- c('Gene', 'logFC_sid2', 'logCPM_sid2', 'F_sid2', 'Pvalue_sid2', 'FDR_sid2')
+
+A2_tga6_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'tga6'])
+A2_tga6_deg_list <- topTags(A2_tga6_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A2_tga6_deg_df <- A2_tga6_deg_list$table
+A2_tga6_deg_df <- A2_tga6_deg_df[A2_tga6_deg_df$logFC > 0.5, ]
+A2_tga6_deg_df <- rownames_to_column(A2_tga6_deg_df, var = 'Gene')
+names(A2_tga6_deg_df) <- c('Gene', 'logFC_tga256', 'logCPM_tga256', 'F_tga256', 'Pvalue_tga256', 'FDR_tga256')
+
+A2_DEG_list_6 <- list(A2_col6_deg_df, A2_sid6_deg_df, A2_tga6_deg_df)
+A2_DEG_compiled_6 <- A2_DEG_list_6 %>% reduce(full_join, by = 'Gene')
+A2_DEG_compiled_6 <- na.omit(A2_DEG_compiled_6)
+write.csv(A2_DEG_compiled_6, 'A2_6_deg_df.csv')
+
+###48 hour----
+A2_col48_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'col48'])
+A2_col48_deg_list <- topTags(A2_col48_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A2_col48_deg_df <- A2_col48_deg_list$table
+A2_col48_deg_df <- A2_col48_deg_df[A2_col48_deg_df$logFC < -0.5, ]
+A2_col48_deg_df <- rownames_to_column(A2_col48_deg_df, var = 'Gene')
+names(A2_col48_deg_df) <- c('Gene', 'logFC_Col0', 'logCPM_Col0', 'F_Col0', 'Pvalue_Col0', 'FDR_Col0')
+
+A2_sid48_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'sid48'])
+A2_sid48_deg_list <- topTags(A2_sid48_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A2_sid48_deg_df <- A2_sid48_deg_list$table
+A2_sid48_deg_df <- A2_sid48_deg_df[A2_sid48_deg_df$logFC < -0.5, ]
+A2_sid48_deg_df <- rownames_to_column(A2_sid48_deg_df, var = 'Gene')
+names(A2_sid48_deg_df) <- c('Gene', 'logFC_sid2', 'logCPM_sid2', 'F_sid2', 'Pvalue_sid2', 'FDR_sid2')
+
+A2_tga48_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'tga48'])
+A2_tga48_deg_list <- topTags(A2_tga48_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A2_tga48_deg_df <- A2_tga48_deg_list$table
+A2_tga48_deg_df <- A2_tga48_deg_df[A2_tga48_deg_df$logFC > 0.5, ]
+A2_tga48_deg_df <- rownames_to_column(A2_tga48_deg_df, var = 'Gene')
+names(A2_tga48_deg_df) <- c('Gene', 'logFC_tga256', 'logCPM_tga256', 'F_tga256', 'Pvalue_tga256', 'FDR_tga256')
+
+A2_DEG_list_48 <- list(A2_col48_deg_df, A2_sid48_deg_df, A2_tga48_deg_df)
+A2_DEG_compiled_48 <- A2_DEG_list_48 %>% reduce(full_join, by = 'Gene')
+A2_DEG_compiled_48 <- na.omit(A2_DEG_compiled_48)
+write.csv(A2_DEG_compiled_48, 'A2_48_deg_df.csv')
+
+##Analysis 3----
+###0 hour----
+A3_0_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[, 'sid_tga0'])
+A3_0_deg_list <- topTags(A3_0_deg, sort.by = 'logFC', n= 'Inf', p.value = 0.05)
+A3_0_deg_df <- A3_0_deg_list$table
+A3_0_deg_df <- rownames_to_column(A3_0_deg_df, var = 'Gene')
+A3_0_deg_df_up <- A3_0_deg_df[A3_0_deg_df$logFC > 1, ]
+write.csv(A3_0_deg_df_up, 'A3_0_deg_df_up.csv')
+A3_0_deg_df_down <- A3_0_deg_df[A3_0_deg_df$logFC < -1, ]
+write.csv(A3_0_deg_df_down, 'A3_0_deg_df_down.csv')
+A3_0_deg_df_up_GO <- read.csv('A3_0_deg_df_up_GO.csv')
+str(A3_0_deg_df_up_GO)
+
+A3_0_deg_df_up_GO_fig <- ggplot(A3_0_deg_df_up_GO, aes(x = Fold_Enrichment, y = reorder(GO_BP, Fold_Enrichment))) + geom_point(mapping = aes(size = Number_Sample, color = FDR)) + theme_classic()
+A3_0_deg_df_up_GO_fig
+
+###30 min----
+A3_30_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[, 'sid_tga30'])
+A3_30_deg_list <- topTags(A3_30_deg, sort.by = 'logFC', n= 'Inf', p.value = 0.05)
+A3_30_deg_df <- A3_30_deg_list$table
+A3_30_deg_df <- rownames_to_column(A3_30_deg_df, var = 'Gene')
+A3_30_deg_df_up <- A3_30_deg_df[A3_30_deg_df$logFC > 1, ]
+write.csv(A3_30_deg_df_up, 'A3_30_deg_df_up.csv')
+A3_30_deg_df_down <- A3_30_deg_df[A3_30_deg_df$logFC < -1, ]
+write.csv(A3_30_deg_df_down, 'A3_30_deg_df_down.csv')
+
+###1 hour----
+A3_1_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[, 'sid_tga1'])
+A3_1_deg_list <- topTags(A3_1_deg, sort.by = 'logFC', n= 'Inf', p.value = 0.05)
+A3_1_deg_df <- A3_1_deg_list$table
+A3_1_deg_df <- rownames_to_column(A3_1_deg_df, var = 'Gene')
+A3_1_deg_df_up <- A3_1_deg_df[A3_1_deg_df$logFC > 1, ]
+write.csv(A3_1_deg_df_up, 'A3_1_deg_df_up.csv')
+A3_1_deg_df_down <- A3_1_deg_df[A3_1_deg_df$logFC < -1, ]
+write.csv(A3_1_deg_df_down, 'A3_1_deg_df_down.csv')
+
+###6 hour----
+A3_6_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[, 'sid_tga6'])
+A3_6_deg_list <- topTags(A3_6_deg, sort.by = 'logFC', n= 'Inf', p.value = 0.05)
+A3_6_deg_df <- A3_6_deg_list$table
+A3_6_deg_df <- rownames_to_column(A3_6_deg_df, var = 'Gene')
+A3_6_deg_df_up <- A3_6_deg_df[A3_6_deg_df$logFC > 1, ]
+write.csv(A3_6_deg_df_up, 'A3_6_deg_df_up.csv')
+A3_6_deg_df_down <- A3_6_deg_df[A3_6_deg_df$logFC < -1, ]
+write.csv(A3_6_deg_df_down, 'A3_6_deg_df_down.csv')
+
+###24 hour----
+A3_24_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[, 'sid_tga24'])
+A3_24_deg_list <- topTags(A3_24_deg, sort.by = 'logFC', n= 'Inf', p.value = 0.05)
+A3_24_deg_df <- A3_24_deg_list$table
+A3_24_deg_df <- rownames_to_column(A3_24_deg_df, var = 'Gene')
+A3_24_deg_df_up <- A3_24_deg_df[A3_24_deg_df$logFC > 1, ]
+write.csv(A3_24_deg_df_up, 'A3_24_deg_df_up.csv')
+A3_24_deg_df_down <- A3_24_deg_df[A3_24_deg_df$logFC < -1, ]
+write.csv(A3_24_deg_df_down, 'A3_24_deg_df_down.csv')
+
+###48 hour----
+A3_48_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[, 'sid_tga48'])
+A3_48_deg_list <- topTags(A3_48_deg, sort.by = 'logFC', n= 'Inf', p.value = 0.05)
+A3_48_deg_df <- A3_48_deg_list$table
+A3_48_deg_df <- rownames_to_column(A3_48_deg_df, var = 'Gene')
+A3_48_deg_df_up <- A3_48_deg_df[A3_48_deg_df$logFC > 1, ]
+write.csv(A3_48_deg_df_up, 'A3_48_deg_df_up.csv')
+A3_48_deg_df_down <- A3_48_deg_df[A3_48_deg_df$logFC < -1, ]
+write.csv(A3_48_deg_df_down, 'A3_48_deg_df_down.csv')
+
+##Analysis 4----
+###10 min----
+A4_10_deg_col_df <- A1_col10_deg_df[A1_col10_deg_df$logFC > 1 | A1_col10_deg_df$logFC < -1, ]
+A4_10_deg_col_df <- rownames_to_column(A4_10_deg_col_df, var = 'Gene')
+A4_10_deg_sid_df <- A1_sid10_deg_df[A1_sid10_deg_df$logFC > 1 | A1_sid10_deg_df$logFC < -1, ]
+A4_10_deg_sid_df <- rownames_to_column(A4_10_deg_sid_df, var = 'Gene')
+A4_10_deg_tga_df <- A1_tga10_deg_df[A1_tga10_deg_df$logFC > 1 | A1_tga10_deg_df$logFC < -1, ]
+A4_10_deg_tga_df <- rownames_to_column(A4_10_deg_tga_df, var = 'Gene')
+A4_10_deg_colsid_df <- merge(A4_10_deg_col_df, A4_10_deg_sid_df, by.x = 'Gene', by.y = 'Gene')
+A4_10_deg_colsid_notga_df <- anti_join(A4_10_deg_colsid_df, A4_10_deg_tga_df, by = 'Gene')
+names(A4_10_deg_colsid_notga_df) <- c('Gene', 'logFC_Col0', 'logCPM_Col_0', 'F_Col0', 'Pvalue_Col0', 'FDR_Col0', 'logFC_sid2', 'logCPM_sid2', 'F_sid2', 'Pvalue_sid2', 'FDR_sid2')
+write.csv(A4_10_deg_colsid_notga_df, 'A4_10_deg_df.csv')
+
+###30 min----
+A4_30_deg_col_df <- A1_col30_deg_df[A1_col30_deg_df$logFC > 1 | A1_col30_deg_df$logFC < -1, ]
+A4_30_deg_col_df <- rownames_to_column(A4_30_deg_col_df, var = 'Gene')
+A4_30_deg_sid_df <- A1_sid30_deg_df[A1_sid30_deg_df$logFC > 1 | A1_sid30_deg_df$logFC < -1, ]
+A4_30_deg_sid_df <- rownames_to_column(A4_30_deg_sid_df, var = 'Gene')
+A4_30_deg_tga_df <- A1_tga30_deg_df[A1_tga30_deg_df$logFC > 1 | A1_tga30_deg_df$logFC < -1, ]
+A4_30_deg_tga_df <- rownames_to_column(A4_30_deg_tga_df, var = 'Gene')
+A4_30_deg_colsid_df <- merge(A4_30_deg_col_df, A4_30_deg_sid_df, by.x = 'Gene', by.y = 'Gene')
+A4_30_deg_colsid_notga_df <- anti_join(A4_30_deg_colsid_df, A4_30_deg_tga_df, by = 'Gene')
+names(A4_30_deg_colsid_notga_df) <- c('Gene', 'logFC_Col0', 'logCPM_Col_0', 'F_Col0', 'Pvalue_Col0', 'FDR_Col0', 'logFC_sid2', 'logCPM_sid2', 'F_sid2', 'Pvalue_sid2', 'FDR_sid2')
+write.csv(A4_30_deg_colsid_notga_df, 'A4_30_deg_df.csv')
+
+###1 hour----
+A4_1_deg_col_df <- A1_col1_deg_df[A1_col1_deg_df$logFC > 1 | A1_col1_deg_df$logFC < -1, ]
+A4_1_deg_col_df <- rownames_to_column(A4_1_deg_col_df, var = 'Gene')
+A4_1_deg_sid_df <- A1_sid1_deg_df[A1_sid1_deg_df$logFC > 1 | A1_sid1_deg_df$logFC < -1, ]
+A4_1_deg_sid_df <- rownames_to_column(A4_1_deg_sid_df, var = 'Gene')
+A4_1_deg_tga_df <- A1_tga1_deg_df[A1_tga1_deg_df$logFC > 1 | A1_tga1_deg_df$logFC < -1, ]
+A4_1_deg_tga_df <- rownames_to_column(A4_1_deg_tga_df, var = 'Gene')
+A4_1_deg_colsid_df <- merge(A4_1_deg_col_df, A4_1_deg_sid_df, by.x = 'Gene', by.y = 'Gene')
+A4_1_deg_colsid_notga_df <- anti_join(A4_1_deg_colsid_df, A4_1_deg_tga_df, by = 'Gene')
+names(A4_1_deg_colsid_notga_df) <- c('Gene', 'logFC_Col0', 'logCPM_Col_0', 'F_Col0', 'Pvalue_Col0', 'FDR_Col0', 'logFC_sid2', 'logCPM_sid2', 'F_sid2', 'Pvalue_sid2', 'FDR_sid2')
+write.csv(A4_1_deg_colsid_notga_df, 'A4_1_deg_df.csv')
+
+###6 hour----
+A4_6_deg_col_df <- A1_col6_deg_df[A1_col6_deg_df$logFC > 1 | A1_col6_deg_df$logFC < -1, ]
+A4_6_deg_col_df <- rownames_to_column(A4_6_deg_col_df, var = 'Gene')
+A4_6_deg_sid_df <- A1_sid6_deg_df[A1_sid6_deg_df$logFC > 1 | A1_sid6_deg_df$logFC < -1, ]
+A4_6_deg_sid_df <- rownames_to_column(A4_6_deg_sid_df, var = 'Gene')
+A4_6_deg_tga_df <- A1_tga6_deg_df[A1_tga6_deg_df$logFC > 1 | A1_tga6_deg_df$logFC < -1, ]
+A4_6_deg_tga_df <- rownames_to_column(A4_6_deg_tga_df, var = 'Gene')
+A4_6_deg_colsid_df <- merge(A4_6_deg_col_df, A4_6_deg_sid_df, by.x = 'Gene', by.y = 'Gene')
+A4_6_deg_colsid_notga_df <- anti_join(A4_6_deg_colsid_df, A4_6_deg_tga_df, by = 'Gene')
+names(A4_6_deg_colsid_notga_df) <- c('Gene', 'logFC_Col0', 'logCPM_Col_0', 'F_Col0', 'Pvalue_Col0', 'FDR_Col0', 'logFC_sid2', 'logCPM_sid2', 'F_sid2', 'Pvalue_sid2', 'FDR_sid2')
+write.csv(A4_6_deg_colsid_notga_df, 'A4_6_deg_df.csv')
+
+###24 hour----
+A4_24_deg_col_df <- A1_col24_deg_df[A1_col24_deg_df$logFC > 1 | A1_col24_deg_df$logFC < -1, ]
+A4_24_deg_col_df <- rownames_to_column(A4_24_deg_col_df, var = 'Gene')
+A4_24_deg_sid_df <- A1_sid24_deg_df[A1_sid24_deg_df$logFC > 1 | A1_sid24_deg_df$logFC < -1, ]
+A4_24_deg_sid_df <- rownames_to_column(A4_24_deg_sid_df, var = 'Gene')
+A4_24_deg_tga_df <- A1_tga24_deg_df[A1_tga24_deg_df$logFC > 1 | A1_tga24_deg_df$logFC < -1, ]
+A4_24_deg_tga_df <- rownames_to_column(A4_24_deg_tga_df, var = 'Gene')
+A4_24_deg_colsid_df <- merge(A4_24_deg_col_df, A4_24_deg_sid_df, by.x = 'Gene', by.y = 'Gene')
+A4_24_deg_colsid_notga_df <- anti_join(A4_24_deg_colsid_df, A4_24_deg_tga_df, by = 'Gene')
+names(A4_24_deg_colsid_notga_df) <- c('Gene', 'logFC_Col0', 'logCPM_Col_0', 'F_Col0', 'Pvalue_Col0', 'FDR_Col0', 'logFC_sid2', 'logCPM_sid2', 'F_sid2', 'Pvalue_sid2', 'FDR_sid2')
+write.csv(A4_24_deg_colsid_notga_df, 'A4_24_deg_df.csv')
+
+###48 hour----
+A4_48_deg_col_df <- A1_col48_deg_df[A1_col48_deg_df$logFC > 1 | A1_col48_deg_df$logFC < -1, ]
+A4_48_deg_col_df <- rownames_to_column(A4_48_deg_col_df, var = 'Gene')
+A4_48_deg_sid_df <- A1_sid48_deg_df[A1_sid48_deg_df$logFC > 1 | A1_sid48_deg_df$logFC < -1, ]
+A4_48_deg_sid_df <- rownames_to_column(A4_48_deg_sid_df, var = 'Gene')
+A4_48_deg_tga_df <- A1_tga48_deg_df[A1_tga48_deg_df$logFC > 1 | A1_tga48_deg_df$logFC < -1, ]
+A4_48_deg_tga_df <- rownames_to_column(A4_48_deg_tga_df, var = 'Gene')
+A4_48_deg_colsid_df <- merge(A4_48_deg_col_df, A4_48_deg_sid_df, by.x = 'Gene', by.y = 'Gene')
+A4_48_deg_colsid_notga_df <- anti_join(A4_48_deg_colsid_df, A4_48_deg_tga_df, by = 'Gene')
+names(A4_48_deg_colsid_notga_df) <- c('Gene', 'logFC_Col0', 'logCPM_Col_0', 'F_Col0', 'Pvalue_Col0', 'FDR_Col0', 'logFC_sid2', 'logCPM_sid2', 'F_sid2', 'Pvalue_sid2', 'FDR_sid2')
+write.csv(A4_48_deg_colsid_notga_df, 'A4_48_deg_df.csv')
+
+##Analysis 5: Compare Feng's DEGs----
+###Col0----
+####10 min----
+A5_col10_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'col10'])
+A5_col10_deg_list <- topTags(A5_col10_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A5_col10_deg_df <- A5_col10_deg_list$table
+A5_col10_deg_df <- A5_col10_deg_df[A5_col10_deg_df$logFC > 1 | A5_col10_deg_df$logFC < -1, ]
+A5_col10_deg_df <- rownames_to_column(A5_col10_deg_df, var = 'Gene')
+names(A5_col10_deg_df) <- c('Gene', 'logFC_Col0', 'logCPM_Col0', 'F_Col0', 'Pvalue_Col0', 'FDR_Col0')
+A5_col10_deg_df$Gene <- sub('\\..*$', '', A5_col10_deg_df$Gene)
+A5_col10_deg_df <- distinct(A5_col10_deg_df, Gene, .keep_all = TRUE)
