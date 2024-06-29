@@ -11,7 +11,6 @@
 
 OUT='/work/lylab/cjn40747/dawei_RNA'
 CDNA='https://ftp.ensemblgenomes.ebi.ac.uk/pub/plants/release-58/fasta/arabidopsis_thaliana/cdna/Arabidopsis_thaliana.TAIR10.cdna.all.fa.gz'
-DNA='https://ftp.ensemblgenomes.ebi.ac.uk/pub/plants/release-58/fasta/arabidopsis_thaliana/dna/Arabidopsis_thaliana.TAIR10.dna.toplevel.fa.gz'
 
 ml FastQC/0.11.9-Java-11
 ml kallisto/0.48.0-gompi-2022a
@@ -20,14 +19,16 @@ ml SAMtools/1.16.1-GCC-11.3.0
 ml BCFtools/1.15.1-GCC-11.3.0
 
 gunzip -k $OUT/all_reads/*.fq.gz
-mkdir -p $OUT/fastqc
-fastqc $OUT/all_reads/*.fq -o $OUT/fastqc
-mkdir -p $OUT/fastqc/all
-unzip $OUT/fastqc/\*.zip -d $OUT/fastqc/all
-find $OUT/fastqc/all -type f -name 'summary.txt' -exec cat {} \; > $OUT/fastqc/all/combined_summary.txt
-grep FAIL $OUT/fastqc/all/combined_summary.txt > $OUT/fastqc/all/fail_summary.txt
+gunzip -k $OUT/extra_reads/*.fq.gz
+mv $OUT/extra_reads/*.fq $OUT/all_reads
+#mkdir -p $OUT/fastqc
+#fastqc $OUT/all_reads/*.fq -o $OUT/fastqc
+#mkdir -p $OUT/fastqc/all
+#unzip $OUT/fastqc/\*.zip -d $OUT/fastqc/all
+#find $OUT/fastqc/all -type f -name 'summary.txt' -exec cat {} \; > $OUT/fastqc/all/combined_summary.txt
+#grep FAIL $OUT/fastqc/all/combined_summary.txt > $OUT/fastqc/all/fail_summary.txt
 
-curl -s $DNA | gunzip -c > $OUT/TAIR10.fa
+curl -s $CDNA | gunzip -c > $OUT/TAIR10.fa
 kallisto index -i $OUT/TAIR10.idx $OUT/TAIR10.fa
 mkdir -p $OUT/kallisto
 for file_1 in $OUT/all_reads/*_1.fq; do
