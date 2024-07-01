@@ -21,12 +21,12 @@ ml BCFtools/1.15.1-GCC-11.3.0
 gunzip -k $OUT/all_reads/*.fq.gz
 gunzip -k $OUT/extra_reads/*.fq.gz
 mv $OUT/extra_reads/*.fq $OUT/all_reads
-#mkdir -p $OUT/fastqc
-#fastqc $OUT/all_reads/*.fq -o $OUT/fastqc
-#mkdir -p $OUT/fastqc/all
-#unzip $OUT/fastqc/\*.zip -d $OUT/fastqc/all
-#find $OUT/fastqc/all -type f -name 'summary.txt' -exec cat {} \; > $OUT/fastqc/all/combined_summary.txt
-#grep FAIL $OUT/fastqc/all/combined_summary.txt > $OUT/fastqc/all/fail_summary.txt
+mkdir -p $OUT/fastqc
+fastqc $OUT/all_reads/*.fq -o $OUT/fastqc
+mkdir -p $OUT/fastqc/all
+unzip $OUT/fastqc/\*.zip -d $OUT/fastqc/all
+find $OUT/fastqc/all -type f -name 'summary.txt' -exec cat {} \; > $OUT/fastqc/all/combined_summary.txt
+grep FAIL $OUT/fastqc/all/combined_summary.txt > $OUT/fastqc/all/fail_summary.txt
 
 curl -s $CDNA | gunzip -c > $OUT/TAIR10.fa
 kallisto index -i $OUT/TAIR10.idx $OUT/TAIR10.fa
@@ -46,5 +46,5 @@ mkdir -p $OUT/counts
 find $OUT/kallisto -name 'abundance.tsv' -type f | while read -r file; do
 	dir=$(dirname "$file")
 	dir_name=$(basename "$dir")
-	cut -f 1,5 "$file" | awk -v dir="$dir_name" 'BEGIN{OFS="\t"} NR==1 {$2=dir} 1' > "$OUT/counts/$dir_name.tsv"
+	cut -f 1,4 "$file" | awk -v dir="$dir_name" 'BEGIN{OFS="\t"} NR==1 {$2=dir} 1' > "$OUT/counts/$dir_name.tsv"
 done
