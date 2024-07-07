@@ -37,4 +37,18 @@ for file_1 in $OUT/all_reads/*_1.fq; do
 done
 
 find $OUT/ballgown_version -type f -name "*.gtf" > $OUT/ballgown_version/stringtie_merge.txt
-stringtie --merge -p 12 -G $OUT/TAIR10_DNA.gtf -o stringtie_merge.gtf stringtie_merge.txt
+stringtie --merge -p 12 -G $OUT/TAIR10_DNA.gtf -o $OUT/ballgown_version/stringtie_merge.gtf $OUT/ballgown_version/stringtie_merge.txt
+
+mkdir -p $OUT/ballgown_version/sortedBAM
+find $OUT/ballgown_version -name "*.sorted.bam" -type f | while read -r file; do
+	mv "$file" $OUT/ballgown_version/sortedBAM
+done
+
+mkdir -p $OUT/ballgown_version/ballgown_input_files
+for file in $OUT/ballgown_version/sortedBAM/*.sorted.bam; do
+	prefix="${file%.sorted.bam}"
+	name=$(basename "$prefix")
+	out_dir="$OUT/ballgown_version/ballgown_input_files/$(basename "$prefix")"
+	mkdir -p $out_dir
+	stringtie -e -B -p 12 -G $OUT/ballgown_version/stringtie_merge.gtf -o $out_dir/$name.gtf "$file"
+done
