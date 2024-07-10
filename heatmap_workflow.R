@@ -9,6 +9,7 @@ library(pheatmap)
 library(tibble)
 library(tidyverse)
 library(dplyr)
+library(ggvenn)
 
 set.seed(1)
 
@@ -682,13 +683,52 @@ names(A4_48_deg_colsid_notga_df) <- c('Gene', 'logFC_Col0', 'logCPM_Col_0', 'F_C
 write.csv(A4_48_deg_colsid_notga_df, 'A4_48_deg_df.csv')
 
 ##Analysis 5: Compare Feng's DEGs----
+directory <- 'C:/Users/cnewt/Yang/Dawei_RNA/Feng_DEGs'
+input <- dir(path = directory, pattern = '\\.csv$', full.names = TRUE)
+for (file in input) {
+  name <- tools::file_path_sans_ext(basename(file))
+  assign(name, read.delim(file, header = TRUE, sep = ','))
+}
+dir_names <- ls()
+feng_files <- grep('^sigs', dir_names, value = TRUE)
+for (name in feng_files) {
+  if (grepl('\\s$', name)) {
+    new_name <- sub('\\s$', '', name)
+    assign(new_name, get(name))
+    rm(list = name)
+  }
+}
 ###Col0----
 ####10 min----
 A5_col10_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'col10'])
-A5_col10_deg_list <- topTags(A5_col10_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A5_col10_deg_list <- topTags(A5_col10_deg, sort.by = 'logFC', n = 'Inf')
 A5_col10_deg_df <- A5_col10_deg_list$table
 A5_col10_deg_df <- A5_col10_deg_df[A5_col10_deg_df$logFC > 1 | A5_col10_deg_df$logFC < -1, ]
+A5_col10_deg_df <- A5_col10_deg_df[A5_col10_deg_df$PValue < 0.05, ]
 A5_col10_deg_df <- rownames_to_column(A5_col10_deg_df, var = 'Gene')
 names(A5_col10_deg_df) <- c('Gene', 'logFC_Col0', 'logCPM_Col0', 'F_Col0', 'Pvalue_Col0', 'FDR_Col0')
-A5_col10_deg_df$Gene <- sub('\\..*$', '', A5_col10_deg_df$Gene)
-A5_col10_deg_df <- distinct(A5_col10_deg_df, Gene, .keep_all = TRUE)
+
+sigs_Col_10m_col_0 <- sigs_Col_10m_col_0[sigs_Col_10m_col_0$log2FoldChange > 1 | sigs_Col_10m_col_0$log2FoldChange < -1, ]
+sigs_Col_10m_col_0 <- sigs_Col_10m_col_0[sigs_Col_10m_col_0$padj < 0.05, ]
+sigs_Col_10m_col_0 <- na.omit(sigs_Col_10m_col_0)
+A5_col10_all_deg_df <- merge(A5_col10_deg_df, sigs_Col_10m_col_0, by.x = 'Gene', by.y = 'X', all = TRUE)
+A5_col10_all_subset <- A5_col10_all_deg_df[ , c('Gene', 'logFC_Col0', 'log2FoldChange')]
+A5_col10_all_subset <- A5_col10_all_subset %>% mutate(logFC_Col0 = ifelse(is.na(logFC_Col0), FALSE, TRUE), log2FoldChange = ifelse(is.na(log2FoldChange), FALSE, TRUE))
+ggvenn(A5_col10_all_subset, c('logFC_Col0', 'log2FoldChange'))
+
+####30 min----
+A5_col30_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'col30'])
+A5_col30_deg_list <- topTags(A5_col30_deg, sort.by = 'logFC', n = 'Inf')
+A5_col30_deg_df <- A5_col30_deg_list$table
+A5_col30_deg_df <- A5_col30_deg_df[A5_col30_deg_df$logFC > 1 | A5_col30_deg_df$logFC < -1, ]
+A5_col30_deg_df <- A5_col30_deg_df[A5_col30_deg_df$PValue < 0.05, ]
+A5_col30_deg_df <- rownames_to_column(A5_col30_deg_df, var = 'Gene')
+names(A5_col30_deg_df) <- c('Gene', 'logFC_Col0', 'logCPM_Col0', 'F_Col0', 'Pvalue_Col0', 'FDR_Col0')
+
+sigs_Col_30m_col_0 <- sigs_Col_30m_col_0[sigs_Col_30m_col_0$log2FoldChange > 1 | sigs_Col_30m_col_0$log2FoldChange < -1, ]
+sigs_Col_30m_col_0 <- sigs_Col_30m_col_0[sigs_Col_30m_col_0$padj < 0.05, ]
+sigs_Col_30m_col_0 <- na.omit(sigs_Col_30m_col_0)
+A5_col30_all_deg_df <- merge(A5_col30_deg_df, sigs_Col_30m_col_0, by.x = 'Gene', by.y = 'X', all = TRUE)
+A5_col30_all_subset <- A5_col30_all_deg_df[ , c('Gene', 'logFC_Col0', 'log2FoldChange')]
+A5_col30_all_subset <- A5_col30_all_subset %>% mutate(logFC_Col0 = ifelse(is.na(logFC_Col0), FALSE, TRUE), log2FoldChange = ifelse(is.na(log2FoldChange), FALSE, TRUE))
+ggvenn(A5_col30_all_subset, c('logFC_Col0', 'log2FoldChange'))
