@@ -49,8 +49,19 @@ Next is preparing the data, directories, and programs you'll use.
 
 These are commands that load programs you'll be using within your script. This is also a great way to ensure you have version control/reproducibility. To figure out if GACRC has a program you want, you can use the command `module spider *` and replace "*" with your program name to see if GACRC has uploaded it. 
 
-When it comes to preparing your data, it is likely going to be a fastq file that is gzipped (*.fq.gz). If these can't be downloaded from a web server accessible through your script, upload them to GACRC and move these files into a dedicated directory. In project.sh I uploaded all of the raw fastq RNA reads into the following file path: `/work/lylab/cjn40747/dawei_RNA/all_reads` I also had some reads in another folder, but that's irrelevant to this document.   You should end up with a folder that contains all of your gzipped fastq files with some sort of unique file name. Next, we'll unzip those files 
+When it comes to preparing your data, it is likely going to be a fastq file that is gzipped (*.fq.gz). If these can't be downloaded from a web server accessible through your script, upload them to GACRC and move these files into a dedicated directory. 
+  - If you have to upload the data to the GACRC servers you can either use the `scp` command through your terminal or use the Globus web server.
+
+In project.sh I uploaded all of the raw fastq RNA reads into the following file path: `/work/lylab/cjn40747/dawei_RNA/all_reads` I also had some reads in another folder, but that's irrelevant to this document.   You should end up with a folder that contains all of your gzipped fastq files with some sort of unique file name. Next, we'll unzip those files 
 
 `gunzip -k $OUT/all_reads/*.fq.gz` 
 
-This is where the variable we created earlier becomes handy. By typing "$OUT" we tell our script to use the value "OUT" encodes. 
+This is where the variable we created earlier becomes handy. By typing "$OUT" we tell our script to use the value "OUT" encodes and then we can add onto it since I've indicated n teh code above I want it to go to the direcotyr encoded by "OUT" but then into another called "all_reads" and then look for all files that have .fq.gz at the end of their name. the `gunzip` command will unzip all of these .fq.gz files. Prior to running gunzip you should have a folder that contains all your raw RNA reads and will look soemthing like the following: 
+
+![directory of raw reads](https://github.com/carternewt/RNA_Seq/blob/14a05217571fc3d1d3fa1c63cf3e97886123d28d/images/image1.png)
+
+Once the `gunzip` command is run, your folder should be a mix of .fq.gz and .fq files 
+
+![directory of unzipped raw reads]
+
+Now we 
