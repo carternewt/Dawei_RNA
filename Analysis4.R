@@ -4,9 +4,8 @@ library(edgeR)
 library(dplyr)
 library(tximport)
 library(ensembldb)
-if (!require("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
-
+install.packages("BiocManager", repos = 'https://cran.r-project.org')
+BiocManager::install(version = '3.19')
 BiocManager::install("txdbmaker")
 library(txdbmaker)
 
