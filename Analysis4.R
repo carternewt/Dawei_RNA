@@ -1,5 +1,5 @@
 work <- ("/work/lylab/cjn40747/dawei_RNA/analysis4")
-setwd(analysis4)
+setwd(work)
 library(edgeR)
 library(dplyr)
 library(tximport)
