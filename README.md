@@ -62,6 +62,27 @@ This is where the variable we created earlier becomes handy. By typing "$OUT" we
 
 Once the `gunzip` command is run, your folder should be a mix of .fq.gz and .fq files 
 
-![directory of unzipped raw reads]
+![directory of unzipped raw reads](https://github.com/carternewt/RNA_Seq/blob/2c6ed5f94db8b4847cf2cd259a5abcf1ee9eb028/images/image2.png)
 
-Now we 
+Now, we can assess the quality of our reads using FastQC. 
+
+`mkdir -p $OUT/fastqc` First, I created a new directory in which all of my FastQC outputs will be stored.
+
+`fastqc $OUT/all_reads/*.fq -o $OUT/fastqc` Now we run a FastQC analysis on all of our fastq files and use the `-o` argument to tell the FastQC program where we want its generated files stored at. fastQC will generate a lot for us and the most user friendly output is going to be its .html files which can be opened in a web browser. However, viewing all of these html files individually is time-consuming. Instead, we can filter through the summary.txt file that has two main columns. 
+1. The first column will either contain the characters "PASS", "WARN", or "FAIL"
+2. The second column tells us which test was performed.
+
+We can compile all of these summary.txt files together across all RNA read files and then search for any "FAIL" instances as "WARN" typically is fine to ignore. 
+
+`mkdir -p $OUT/fastqc/all` We're going to create another directory to unzip files into 
+
+`unzip $OUT/fastqc/\*.zip -d $OUT/fastqc/all` FastQC generates zipped folders. So we use the `unzip` command to extract the contents of these folders and then use the `-d` argument to tell the `unzip` command where to extract the files to. 
+
+`find $OUT/fastqc/all -type f -name 'summary.txt' -exec cat {} \; > $OUT/fastqc/all/combined_summary.txt` Now, we'll use the `find` command to search for any file that's called `summary.txt`. Then we use the `-exec` argument to tell the command to "execute" the following command. Thus, we tell our command to `cat` the summary.txt file once it finds it (print the entire content of it) and store it into a new file called "combined_summary.txt". This combined_summary.txt will then be a compiled version of all summary.txt files. 
+
+`grep FAIL $OUT/fastqc/all/combined_summary.txt > $OUT/fastqc/all/fail_summary.txt` Next, we want to find all the "FAIL" instances, so we use `grep.` You can think of `grep` as CTRL + F when you try to search for a phrase in a document or web page. Thus, we use `grep` to find all lines that have "FAIL" in them and then we want to copy those lines into a new file called "fail_summary.txt" so that we can assess what failed the quality assessment more easily. 
+
+If your reads came back with "FAIL" for anything, you may want to check some html files more closely and consider addressing the issues by using Trimmomatic or another cleaning program. 
+
+---
+
