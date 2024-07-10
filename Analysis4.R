@@ -6,6 +6,7 @@ library(tximport)
 library(ensembldb)
 library(GenomicFeatures)
 library(rhdf5)
+library(tibble)
 
 set.seed(1)
 
