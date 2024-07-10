@@ -4,10 +4,7 @@ library(edgeR)
 library(dplyr)
 library(tximport)
 library(ensembldb)
-install.packages("BiocManager", repos = 'https://cran.r-project.org')
-BiocManager::install(version = '3.19')
-BiocManager::install("txdbmaker")
-library(txdbmaker)
+library(GenomicFeatures)
 
 set.seed(1)
 
