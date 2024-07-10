@@ -1,4 +1,10 @@
 # RNA-Seq Analysis walkthrough based on the *npr3/4*, *tga2/5/6*, and *sid2* compared to Col-0 RNA-Seq dataset
+## In Brief
+- [project.sh](https://github.com/carternewt/RNA_Seq/blob/36b39dfb29bb867d99225d302070ba4fbc6c4406/project.sh)
+  - Performs a FastQC quality assessment and psuedoalignment with kallisto
+- [ballgown.sh](https://github.com/carternewt/RNA_Seq/blob/da0cf018c4c6b166ec08f87547aa9d53ffe86da6/ballgown.sh)
+  - Runs the HISAT2-StringTie-ballgown pipeline, a traditional alignment approach
+- 
 ## project.sh
 [project.sh](https://github.com/carternewt/RNA_Seq/blob/36b39dfb29bb867d99225d302070ba4fbc6c4406/project.sh) is a script file built for the GACRC servers and performs the following:
 - Checks the quality of raw RNA reads via [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
@@ -80,9 +86,11 @@ We can compile all of these summary.txt files together across all RNA read files
 
 `find $OUT/fastqc/all -type f -name 'summary.txt' -exec cat {} \; > $OUT/fastqc/all/combined_summary.txt` Now, we'll use the `find` command to search for any file that's called `summary.txt`. Then we use the `-exec` argument to tell the command to "execute" the following command. Thus, we tell our command to `cat` the summary.txt file once it finds it (print the entire content of it) and store it into a new file called "combined_summary.txt". This combined_summary.txt will then be a compiled version of all summary.txt files. 
 
-`grep FAIL $OUT/fastqc/all/combined_summary.txt > $OUT/fastqc/all/fail_summary.txt` Next, we want to find all the "FAIL" instances, so we use `grep.` You can think of `grep` as CTRL + F when you try to search for a phrase in a document or web page. Thus, we use `grep` to find all lines that have "FAIL" in them and then we want to copy those lines into a new file called "fail_summary.txt" so that we can assess what failed the quality assessment more easily. 
+`grep FAIL $OUT/fastqc/all/combined_summary.txt > $OUT/fastqc/all/fail_summary.txt` Next, we want to find all the "FAIL" instances, so we use `grep.` You can think of `grep` as CTRL + F when you try to search for a phrase in a document or web page. Thus, we use `grep` to find all lines that have "FAIL" in them and then we want to copy those lines into a new file called "fail_summary.txt" so that we can assess what failed the quality assessment more easily. You can then go to the directory where you saved your fail_summary.txt file to and use the `cat` command to view all "FAIL" instances. 
 
-If your reads came back with "FAIL" for anything, you may want to check some html files more closely and consider addressing the issues by using Trimmomatic or another cleaning program. 
+![fail_summary.txt content](https://github.com/carternewt/RNA_Seq/blob/da0cf018c4c6b166ec08f87547aa9d53ffe86da6/images/image3.png)
+
+If your reads came back with "FAIL" for anything, you may want to check some .html files more closely and consider addressing the issues by using Trimmomatic or another cleaning program. 
 
 ---
 
