@@ -33,7 +33,7 @@ You can add other SLURM headers that may be warranted for your analyses and thos
 ---
 Next is preparing the data, directories, and programs you'll use. 
 
-`OUT='/work/lylab/cjn40747/dawei_RNA'` This command creates a variable called "OUT" that encodes for the file path found within the quotes. This will make your code more neat and make you less prone to spelling errors as long file paths cna be shortened to these variables.
+`OUT='/work/lylab/cjn40747/dawei_RNA'` This command creates a variable called "OUT" that encodes for the file path found within the quotes. This will make your code more neat and make you less prone to spelling errors as long file paths can be shortened to these variables. You'll want to change the file path to the directory you plan to store most of your files related to the analysis.
 
 `CDNA='https://ftp.ensemblgenomes.ebi.ac.uk/pub/plants/release-58/fasta/arabidopsis_thaliana/cdna/Arabidopsis_thaliana.TAIR10.cdna.all.fa.gz'` This also creates a variable that now holds a URL to the TAIR10 reference transcriptome I use for this script. Anytime you are able to download your data from a web server, always have your script do it. You'll save space on your own computer and it helps alleviate any errors that may arise with you trying to manually download these large omic files. 
 
