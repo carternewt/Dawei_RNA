@@ -110,7 +110,7 @@ A4_tga10_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'tga10']
 A4_tga10_deg_list <- topTags(A4_tga10_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
 A4_tga10_deg_df <- A4_tga10_deg_list$table
 A4_tga10_deg_df <- rownames_to_column(A4_tga10_deg_df, var = 'Gene')
-names(A1_tga10_deg_df) <- c('Gene', 'logFC_tga256', 'logCPM_tga256', 'F_tga256', 'Pvalue_tga256', 'FDR_tga256')
+names(A4_tga10_deg_df) <- c('Gene', 'logFC_tga256', 'logCPM_tga256', 'F_tga256', 'Pvalue_tga256', 'FDR_tga256')
 A4_10_deg_tga_df <- A4_tga10_deg_df[A4_tga10_deg_df$logFC > 1 | A4_tga10_deg_df$logFC < -1, ]
 
 A4_10_deg_colsid_df <- merge(A4_10_deg_col_df, A4_10_deg_sid_df, by.x = 'Gene', by.y = 'Gene')
@@ -137,7 +137,7 @@ A4_tga30_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'tga30']
 A4_tga30_deg_list <- topTags(A4_tga30_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
 A4_tga30_deg_df <- A4_tga30_deg_list$table
 A4_tga30_deg_df <- rownames_to_column(A4_tga30_deg_df, var = 'Gene')
-names(A1_tga30_deg_df) <- c('Gene', 'logFC_tga256', 'logCPM_tga256', 'F_tga256', 'Pvalue_tga256', 'FDR_tga256')
+names(A4_tga30_deg_df) <- c('Gene', 'logFC_tga256', 'logCPM_tga256', 'F_tga256', 'Pvalue_tga256', 'FDR_tga256')
 A4_30_deg_tga_df <- A4_tga30_deg_df[A4_tga30_deg_df$logFC > 1 | A4_tga30_deg_df$logFC < -1, ]
 
 A4_30_deg_colsid_df <- merge(A4_30_deg_col_df, A4_30_deg_sid_df, by.x = 'Gene', by.y = 'Gene')
@@ -164,7 +164,7 @@ A4_tga1_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'tga1'])
 A4_tga1_deg_list <- topTags(A4_tga1_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
 A4_tga1_deg_df <- A4_tga1_deg_list$table
 A4_tga1_deg_df <- rownames_to_column(A4_tga1_deg_df, var = 'Gene')
-names(A1_tga1_deg_df) <- c('Gene', 'logFC_tga256', 'logCPM_tga256', 'F_tga256', 'Pvalue_tga256', 'FDR_tga256')
+names(A4_tga1_deg_df) <- c('Gene', 'logFC_tga256', 'logCPM_tga256', 'F_tga256', 'Pvalue_tga256', 'FDR_tga256')
 A4_1_deg_tga_df <- A4_tga1_deg_df[A4_tga1_deg_df$logFC > 1 | A4_tga1_deg_df$logFC < -1, ]
 
 A4_1_deg_colsid_df <- merge(A4_1_deg_col_df, A4_1_deg_sid_df, by.x = 'Gene', by.y = 'Gene')
@@ -191,7 +191,7 @@ A4_tga6_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'tga6'])
 A4_tga6_deg_list <- topTags(A4_tga6_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
 A4_tga6_deg_df <- A4_tga6_deg_list$table
 A4_tga6_deg_df <- rownames_to_column(A4_tga6_deg_df, var = 'Gene')
-names(A1_tga6_deg_df) <- c('Gene', 'logFC_tga256', 'logCPM_tga256', 'F_tga256', 'Pvalue_tga256', 'FDR_tga256')
+names(A4_tga6_deg_df) <- c('Gene', 'logFC_tga256', 'logCPM_tga256', 'F_tga256', 'Pvalue_tga256', 'FDR_tga256')
 A4_6_deg_tga_df <- A4_tga6_deg_df[A4_tga6_deg_df$logFC > 1 | A4_tga6_deg_df$logFC < -1, ]
 
 A4_6_deg_colsid_df <- merge(A4_6_deg_col_df, A4_6_deg_sid_df, by.x = 'Gene', by.y = 'Gene')
@@ -218,7 +218,7 @@ A4_tga24_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'tga24']
 A4_tga24_deg_list <- topTags(A4_tga24_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
 A4_tga24_deg_df <- A4_tga24_deg_list$table
 A4_tga24_deg_df <- rownames_to_column(A4_tga24_deg_df, var = 'Gene')
-names(A1_tga24_deg_df) <- c('Gene', 'logFC_tga256', 'logCPM_tga256', 'F_tga256', 'Pvalue_tga256', 'FDR_tga256')
+names(A4_tga24_deg_df) <- c('Gene', 'logFC_tga256', 'logCPM_tga256', 'F_tga256', 'Pvalue_tga256', 'FDR_tga256')
 A4_24_deg_tga_df <- A4_tga24_deg_df[A4_tga24_deg_df$logFC > 1 | A4_tga24_deg_df$logFC < -1, ]
 
 A4_24_deg_colsid_df <- merge(A4_24_deg_col_df, A4_24_deg_sid_df, by.x = 'Gene', by.y = 'Gene')
@@ -245,7 +245,7 @@ A4_tga48_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'tga48']
 A4_tga48_deg_list <- topTags(A4_tga48_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
 A4_tga48_deg_df <- A4_tga48_deg_list$table
 A4_tga48_deg_df <- rownames_to_column(A4_tga48_deg_df, var = 'Gene')
-names(A1_tga48_deg_df) <- c('Gene', 'logFC_tga256', 'logCPM_tga256', 'F_tga256', 'Pvalue_tga256', 'FDR_tga256')
+names(A4_tga48_deg_df) <- c('Gene', 'logFC_tga256', 'logCPM_tga256', 'F_tga256', 'Pvalue_tga256', 'FDR_tga256')
 A4_48_deg_tga_df <- A4_tga48_deg_df[A4_tga48_deg_df$logFC > 1 | A4_tga48_deg_df$logFC < -1, ]
 
 A4_48_deg_colsid_df <- merge(A4_48_deg_col_df, A4_48_deg_sid_df, by.x = 'Gene', by.y = 'Gene')
