@@ -10,7 +10,7 @@ set.seed(1)
 
 samples <- read.csv('h5_files_meta.csv')
 rownames(samples) <- samples$sample
-files <- file.path('/work/lylab/cjn40747/dawei_RNA/h5_files', samples$sample, 'abundance.h5')
+files <- file.path('/work/lylab/cjn40747/dawei_RNA/counts/h5_files', samples$sample, 'abundance.h5')
 txdb <- makeTxDbFromGFF('/work/lylab/cjn40747/dawei_RNA/TAIR10_DNA.gtf')
 k <- keys(txdb, keytype = 'TXNAME')
 tx_map <- select(txdb, keys = k, columns = 'GENEID', keytype = 'TXNAME')
