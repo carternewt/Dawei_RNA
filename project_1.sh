@@ -43,8 +43,10 @@ ml BCFtools/1.15.1-GCC-11.3.0
 #done
 
 mkdir -p $OUT/counts
+mkdir -p $OUT/counts/h5_files
 find $OUT/kallisto -name 'abundance.h5' -type f | while read -r file; do
 	dir=$(dirname "$file")
-	dir_name=$(basename "$dir")
-	cat "$file" > "$OUT/counts/$dir_name.h5"
+	out_dir="$OUT/counts/h5_files/$(basename "$dir")"
+	mkdir -p $out_dir
+	cp "$file" $out_dir
 done
