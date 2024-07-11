@@ -42,11 +42,10 @@ for file_1 in $OUT/all_reads/*_1.fq; do
 	samtools index -@ 12 $out_dir/$name.sorted.bam -o $out_dir/$name.sorted.bam.bai
 done
 
-mkdir -p $OUT/counts
-mkdir -p $OUT/counts/h5_files
+mkdir -p $OUT/h5_files
 find $OUT/kallisto -name 'abundance.h5' -type f | while read -r file; do
         dir=$(dirname "$file")
-        out_dir="$OUT/counts/h5_files/$(basename "$dir")"
+        out_dir="$OUT/h5_files/$(basename "$dir")"
         mkdir -p $out_dir
         cp "$file" $out_dir
 done
