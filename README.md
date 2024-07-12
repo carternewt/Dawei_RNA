@@ -13,7 +13,7 @@
 - Checks the quality of raw RNA reads via [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
   - [project.sh](https://github.com/carternewt/RNA_Seq/blob/36b39dfb29bb867d99225d302070ba4fbc6c4406/project.sh) does not perform any sequence cleaning steps (e.g., [Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic)) as the RNA reads for this instance were cleaned by the sequencing company. We confirm the quality via FastQC.
 - Performs a psuedoalignment via [kallisto](https://pachterlab.github.io/kallisto/manual.html) and prepares a directory that can be utilized by [DEG_analysis.R](https://github.com/carternewt/RNA_Seq/blob/36b39dfb29bb867d99225d302070ba4fbc6c4406/DEG_analysis.R) for differential expression analysis
-  - If you want to conduct a traditional alignment analysis, please skip to the [ballgown.sh](https://github.com/carternewt/RNA_Seq/blob/36b39dfb29bb867d99225d302070ba4fbc6c4406/ballgown.sh) section after reading up to the kallisto section.
+  - If you want to conduct a traditional alignment analysis, please skip to the [ballgown.sh](https://github.com/carternewt/RNA_Seq/blob/36b39dfb29bb867d99225d302070ba4fbc6c4406/ballgown.sh) section.
 
 The first part of [project.sh](https://github.com/carternewt/RNA_Seq/blob/36b39dfb29bb867d99225d302070ba4fbc6c4406/project.sh) is all of the SLURM headers at the top of the file. 
 
@@ -46,22 +46,20 @@ Next is preparing the data, directories, and programs you'll use.
 
 `CDNA='https://ftp.ensemblgenomes.ebi.ac.uk/pub/plants/release-58/fasta/arabidopsis_thaliana/cdna/Arabidopsis_thaliana.TAIR10.cdna.all.fa.gz'` This also creates a variable that now holds a URL to the TAIR10 reference transcriptome I use for this script. Anytime you are able to download your data from a web server, always have your script do it. You'll save space on your own computer and it helps alleviate any errors that may arise with you trying to manually download these large omic files. 
 
-`ml FastQC/0.11.9-Java-11`
-
-`ml kallisto/0.48.0-gompi-2022a`
-
-`ml BWA/0.7.17-GCCcore-11.3.0`
-
-`ml SAMtools/1.16.1-GCC-11.3.0`
-
-`ml BCFtools/1.15.1-GCC-11.3.0`
+```
+ml FastQC/0.11.9-Java-11
+ml kallisto/0.48.0-gompi-2022a
+ml BWA/0.7.17-GCCcore-11.3.0
+ml SAMtools/1.16.1-GCC-11.3.0
+ml BCFtools/1.15.1-GCC-11.3.0
+```
 
 These are commands that load programs you'll be using within your script. This is also a great way to ensure you have version control/reproducibility. To figure out if GACRC has a program you want, you can use the command `module spider *` and replace "*" with your program name to see if GACRC has uploaded it. 
 
-When it comes to preparing your data, it is likely going to be a fastq file that is gzipped (*.fq.gz). If these can't be downloaded from a web server accessible through your script, upload them to GACRC and move these files into a dedicated directory. 
+When it comes to preparing your data, it is likely going to be a FASTQ file that is gzipped (*.fq.gz). If these can't be downloaded from a web server accessible through your script, upload them to GACRC and move these files into a dedicated directory. 
   - If you have to upload the data to the GACRC servers you can either use the `scp` command through your terminal or use the Globus web server.
 
-In project.sh I uploaded all of the raw fastq RNA reads into the following file path: `/work/lylab/cjn40747/dawei_RNA/all_reads` I also had some reads in another folder, but that's irrelevant to this document.   You should end up with a folder that contains all of your gzipped fastq files with some sort of unique file name. Next, we'll unzip those files 
+In project.sh I uploaded all of the raw FASTQ RNA reads into the following file path: `/work/lylab/cjn40747/dawei_RNA/all_reads` I also had some reads in another folder, but that's irrelevant to this document.   You should end up with a folder that contains all of your gzipped FASTQ files with some sort of unique file name. Next, we'll unzip those files 
 
 `gunzip -k $OUT/all_reads/*.fq.gz` 
 
@@ -77,7 +75,7 @@ Now, we can assess the quality of our reads using FastQC.
 
 `mkdir -p $OUT/fastqc` First, I created a new directory in which all of my FastQC outputs will be stored.
 
-`fastqc $OUT/all_reads/*.fq -o $OUT/fastqc` Now we run a FastQC analysis on all of our fastq files and use the `-o` argument to tell the FastQC program where we want its generated files stored at. FastQC will generate a lot for us, and the most user-friendly output is going to be its .html files, which can be opened in a web browser. However, viewing all of these HTML files individually is time-consuming. Instead, we can filter through the summary.txt file that has two main columns. 
+`fastqc $OUT/all_reads/*.fq -o $OUT/fastqc` Now we run a FastQC analysis on all of our FASTQ files and use the `-o` argument to tell the FastQC program where we want its generated files stored at. FastQC will generate a lot for us, and the most user-friendly output is going to be its .html files, which can be opened in a web browser. However, viewing all of these HTML files individually is time-consuming. Instead, we can filter through the summary.txt file that has two main columns. 
 1. The first column will either contain the characters "PASS", "WARN", or "FAIL"
 2. The second column tells us which test was performed.
 
@@ -98,9 +96,9 @@ If your reads came back with "FAIL" for anything, you might want to check some H
 ---
 Next is getting files ready for kallisto. 
 
-`curl -s $CDNA | gunzip -c > $OUT/TAIR10.fa` For kallisto we need a reference that our reads can be mapped to. kallisto utilizes a transcriptome (cDNA) library for its reference. The variable created earlier in this script, "CDNA," contains a link to the Ensembl database where the fasta file for the TAIR10 cDNA library is. By using `curl`, we can obtain data from URLs such as the one encoded by "CDNA." Once we have downloaded the TAIR10 fasta file, we need to unzip it as we did for the fastq files earlier, as this file is in .fa.gz format.
+`curl -s $CDNA | gunzip -c > $OUT/TAIR10.fa` For kallisto we need a reference that our reads can be mapped to. kallisto utilizes a transcriptome (cDNA) library for its reference. The variable created earlier in this script, "CDNA," contains a link to the Ensembl database where the FASTA file for the TAIR10 cDNA library is. By using `curl`, we can obtain data from URLs such as the one encoded by "CDNA." Once we have downloaded the TAIR10 FASTA file, we need to unzip it as we did for the FASTQ files earlier, as this file is in .fa.gz format.
 
-`kallisto index -i $OUT/TAIR10.idx $OUT/TAIR10.fa` Now, we need to let Kkllisto read through the fasta file and index it so that the program can utilize the fasta file for referencing. We use the `-i` argument here to tell `kallisto index` what we want to name the index file and where to store it. 
+`kallisto index -i $OUT/TAIR10.idx $OUT/TAIR10.fa` Now, we need to let Kkllisto read through the FASTA file and index it so that the program can utilize the FASTA file for referencing. We use the `-i` argument here to tell `kallisto index` what we want to name the index file and where to store it. 
 
 `mkdir -p $OUT/kallisto` We're also going to create a directory where we want our files to be stored during the kallisto analysis. 
 
@@ -136,7 +134,7 @@ Everything is now prepped to run kallisto since we have a unique directory to st
 - `-o $out_dir` is an argument to inform kallisto where to output the files it generates.
 - `-b 100` is an argument that tells kallisto the number of bootstrap samples. Bootstrapping is important to increase confidence and reliability and identify biases in the quantification step.
 - `-t 12` is an argument that indicates the number of threads Kallisto can utilize. Make this value equal to the number of CPUs you requested for your script, which can be found in the SLURM headers.
-- `"$file_1" "$file_2"` once we've added all of our additional arguments, we need to supply the paired reads we want kallisto to utilize. Remember, our for loop generated the "file_1" and "file_2" variables that encode the names of our fastq files.
+- `"$file_1" "$file_2"` once we've added all of our additional arguments, we need to supply the paired reads we want kallisto to utilize. Remember, our for loop generated the "file_1" and "file_2" variables that encode the names of our FASTQ files.
 
 ```
 samtools sort --threads 12 $out_dir/pseudoalignments.bam -o $out_dir/$name.sorted.bam
@@ -150,7 +148,7 @@ These next two lines of code aren't necessary unless you want to visualize how t
 With the kallisto quantification done, we simply need to organize our output so that it's in a format that can be read for subsequent analyses. In this case, the [DEG_analysis.R](https://github.com/carternewt/RNA_Seq/blob/c437646f2f9a5ad94dc34b93b89511dea5bd77cc/DEG_analysis.R) script was used to analyze the kallisto outputs. To read in data for this R script, we need the "abundance.h5" files generated by kallisto. We also can't rename these "abundance.h5" files, as this will give us issues when importing our data into the R script. Instead, we just need to make sure the abundance.h5 files are in a directory that's named in accordance with the sample it represents, and all of these directories are housed in another directory. The final directory we are aiming to make will be structured like this:
 
 ```
-$OUT/counts/h5_files/
+$OUT/h5_files/
   Col-0-1/
     abundance.h5
   Col-0-2/
@@ -160,6 +158,7 @@ $OUT/counts/h5_files/
 ...
 ```
 
+To achieve this, the following code will be employed
 ```
 mkdir -p $OUT/h5_files
 find $OUT/kallisto -name 'abundance.h5' -type f | while read -r file; do
@@ -169,3 +168,87 @@ find $OUT/kallisto -name 'abundance.h5' -type f | while read -r file; do
         cp "$file" $out_dir
 done
 ```
+
+First, we need to create the directory that's going to house all of our subdirectories. `mkdir -p $OUT/h5_files` is where we will create all of our subdirectories that will hold respective abundance.h5 files. 
+
+Next, we are going to create another looping code. Instead of using `for` to generate a looping command, we are going to use `while`. It's essentially the same idea as both of these commands will continue to run until the conditions we give them have run out. 
+
+To start our `while` loop we are going to provide the condition for it. Our condition is going to be finding all of the abundance.h5 files. We'll be using the `find` command we utilized earlier in the script to do so. `find $OUT/kallisto -name 'abundance.h5' -type f` here, we are telling the find command to search for files within the kallisto directory that have file name "abundance.h5". Once it has found all those files we want to input all the found files into the `while` command which is why we have a `|` between the commands. The `|` acts as a pipe and tells your script to take the output from the code on the left side of the pipe and use it as input for the code on the right side of the pipe. Then our "looping" command `while read -r file; do` is stating to read the "file" (these are the abundance.h5 files) one at a time. With these files we essentially want to move them into a directory to align with our formatting. 
+
+```
+dir=$(dirname "$file")
+out_dir="$OUT/h5_files/$(basename "$dir")"
+mkdir -p $out_dir
+```
+
+These three lines should be recognizable from the `for` loop earlier, so I will skip over this. The only new command is the following one, which is `cp "$file" $out_dir` where we are using `cp` to copy the abundance.h5 file into its new directory.
+
+That is it for project.sh! You should be able to navigate in Sapelo to the directories where you've saved all of these files. You'll need to end up copying certain files or folders (such as the h5_files directory we just created) onto your local computer for downstream analyses. As a reminder, this can be achieved with `scp` or Globus. 
+
+## ballgown.sh
+[ballgown.sh](https://github.com/carternewt/RNA_Seq/blob/da0cf018c4c6b166ec08f87547aa9d53ffe86da6/ballgown.sh) is a script file built for the GACRC servers and performs the following: 
+- Employs [HISAT2](https://daehwankimlab.github.io/hisat2/) to align reads to a reference genome
+- Pipes HISAT2 alignments into [StringTie](https://ccb.jhu.edu/software/stringtie/) to assemble potential transcripts
+  - Generates estimated transcript abundance files (.ctab) that can be used by [ballgown](https://github.com/alyssafrazee/ballgown) to read into R
+ 
+The first part of [ballgown.sh](https://github.com/carternewt/RNA_Seq/blob/da0cf018c4c6b166ec08f87547aa9d53ffe86da6/ballgown.sh) consists of SLURM headers similar to [project.sh](https://github.com/carternewt/RNA_Seq/blob/36b39dfb29bb867d99225d302070ba4fbc6c4406/project.sh). For an explanation on these lines, please refer to the start of the project.sh section. 
+
+The first 11 lines of [ballgown.sh](https://github.com/carternewt/RNA_Seq/blob/da0cf018c4c6b166ec08f87547aa9d53ffe86da6/ballgown.sh) are similar to [project.sh](https://github.com/carternewt/RNA_Seq/blob/36b39dfb29bb867d99225d302070ba4fbc6c4406/project.sh) in regards to the commands used. 
+
+```
+OUT='/work/lylab/cjn40747/dawei_RNA'
+REF='https://ftp.ensemblgenomes.ebi.ac.uk/pub/plants/release-59/fasta/arabidopsis_thaliana/dna/Arabidopsis_thaliana.TAIR10.dna_rm.toplevel.fa.gz'
+GFF3='https://ftp.ensemblgenomes.ebi.ac.uk/pub/plants/release-59/gff3/arabidopsis_thaliana/Arabidopsis_thaliana.TAIR10.59.gff3.gz'
+```
+HISAT2 requires a genome FASTA file. Thus, the variable "REF" encodes for an *Arabidopsis thaliana* TAIR10 reference genome. StringTie requires a general feature format (GFF or GFF3) file that contains annotations for genomic features. Thus, the variable "GFF#" encodes for the *Arabidopsis thaliana* TAIR10 GFF3 file. 
+
+```
+ml HISAT2/3n-20201216-gompi-2022a
+ml SAMtools/0.1.20-GCC-11.2.0
+ml StringTie/2.2.1-GCC-11.3.0 
+ml gffread/0.12.7-GCCcore-11.3.0
+```
+
+Here, we load in the programs that will be utilized in this script. 
+
+---
+Next, we need to prep our data. 
+```
+curl -s $REF | gunzip -c > $OUT/TAIR10_DNA.fa
+hisat2-build -f -p 12 $OUT/TAIR10_DNA.fa $OUT/TAIR10_DNA_idx
+curl -s $GFF3 | gunzip -c > $OUT/TAIR10_DNA.gff
+gffread $OUT/TAIR10_DNA.gff -T -o $OUT/TAIR10_DNA.gtf
+```
+Similar to [project.sh](https://github.com/carternewt/RNA_Seq/blob/36b39dfb29bb867d99225d302070ba4fbc6c4406/project.sh), to obtain the files from the Ensembl database, we'll utilize the `curl` command piped into `gunzip` to unzip the files. 
+
+To prepare the genomic sequence FASTA file for HISAT2, the program needs an indexed version it can read, similar to what was performed for kallisto. `hisat2-build -f -p 12 $OUT/TAIR10_DNA.fa $OUT/TAIR10_DNA_idx` this command will generate the indexed reference genome for us to be called upon later in the script. The `-f` argument tells `hisat2-build` that the input file we are giving it is in FASTA format. `-p 12` tells `hisat2-build` to utilize 12 CPUs. Change "12" to however many CPUs you requested in your script which is indicated in the SLURM headers. 
+
+For StringTie to assemble reads into transcripts, it requires a GTF file. Since Ensembl provides a GFF file, we need to convert the GFF file to a GTF. `gffread $OUT/TAIR10_DNA.gff -T -o $OUT/TAIR10_DNA.gtf` performs this conversion for us and doesn't require many arguments. `-o` is the only main argument needed, which is to tell `gffread` what we want to name out GTF file and where to store it. 
+
+---
+With our data prepared, it's time to run our reads through the HISAT2-StringTie pipeline. It is also assumed that your RNA reads are all stored in a folder and unzipped, as discussed previously in the [project.sh](https://github.com/carternewt/RNA_Seq/blob/36b39dfb29bb867d99225d302070ba4fbc6c4406/project.sh) section. 
+
+```
+mkdir -p $OUT/ballgown_version
+for file_1 in $OUT/all_reads/*_1.fq; do
+	prefix="${file_1%_1.fq}"
+	file_2="${prefix}_2.fq"
+	out_dir="$OUT/ballgown_version/$(basename "$prefix")"
+	name=$(basename "$prefix")
+	mkdir -p "$out_dir"
+	hisat2 -p 12 --dta -x $OUT/TAIR10_DNA_idx -1 "$file_1" -2 "$file_2" -S $out_dir/$name.sam
+	samtools view -bS $out_dir/$name.sam -o $out_dir/$name.bam
+	samtools sort -@ 12 $out_dir/$name.bam $out_dir/$name.sorted
+	stringtie -p 12 -G $OUT/TAIR10_DNA.gtf -o $out_dir/$name.gtf -l $name $out_dir/$name.sorted.bam
+done
+```
+
+The first 7 lines are identical to the `for` loop in [project.sh](https://github.com/carternewt/RNA_Seq/blob/36b39dfb29bb867d99225d302070ba4fbc6c4406/project.sh) that was used to run the kallisto quantifcation. The only difference is that we have created a new directory for our files to be stored in. That said, we'll skip ahead to the new lines of code where we implement commands from HISAT2, SAMtools, and StringTie.
+
+`hisat2 -p 12 --dta -x $OUT/TAIR10_DNA_idx -1 "$file_1" -2 "$file_2" -S $out_dir/$name.sam` the first command we'll use is `hisat2` which will align our reads to the indexed reference genome we generated and output the alignments into a SAM file. `-p 12` tells the `hisat2` command how many CPUs to use. `--dta` is an argument that ensures the reported alignments are tailored for StringTie to utilize. `-x` argument is used to indicate the **basename** of the indexed reference genome. By basename, this means we do not indicate the file type. This is because when we generated the indexed reference genome, it generated multiple .ht2 files, as seen below.
+
+![Indexed reference genome](
+
+Thus, we only call on the basename to ensure that `hisat2` can find all the indexed files for utilization. 
+
+
