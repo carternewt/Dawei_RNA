@@ -257,9 +257,8 @@ With our BAM file generated, we'll need to sort it so that StringTie can properl
 
 Now, we can utilize StringTie to assemble potential transcripts. `stringtie -p 12 -G $OUT/TAIR10_DNA.gtf -o $out_dir/$name.gtf -l $name $out_dir/$name.sorted.bam` is also fairly straightforward. `-p` tells `stringtie` how many CPUs it can utilize. `-G` tells `stringtie` where it can find the GTF file to use as an annotation reference. `-o` argument tells `stringtie` what to name the generated GTF file and where to store them. `-l` argument provides `stringtie` the basename to use as a prefix for output transcripts. After we supply all of these arguments, we provide `stringtie` with the location of the sorted BAM file we want it to use for assembling transcripts. 
 
----
-The `for` loop above will have generated all of the files that are needed for downstream analyses. Thus, we need to organize relevant data into a format that downstream programs can readily interpret (e.g., ballgown and edgeR). 
+This marks the end of the `for` loop and we should have a directory that stores numerous sub directories named after the RNA-Seq sample. For "Col-0-1" the contents of the folder will look like this:
 
+![Col-0-1 ballgown.sh first for loop example](
 
-
-
+After transcripts have been assembled, we'll now take our output files from the previous `for` loop and generate estimated transcript abundances. 
