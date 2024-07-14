@@ -1,19 +1,11 @@
 setwd("C:/Users/cnewt/Yang/Dawei_RNA/counts") #For local computer
 
 library(edgeR)
-library(RColorBrewer)
-library(pheatmap)
 library(tibble)
-library(tidyverse)
 library(dplyr)
-library(ggvenn)
-library(DESeq2)
 library(tximport)
-library(readr)
 library(rhdf5)
 library(ensembldb)
-library(plyr)
-library(ballgown)
 library(txdbmaker)
 library(purrr)
 
