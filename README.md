@@ -304,4 +304,4 @@ If the script is successful, you should have a directory containing multiple sub
 ## DEG_analysis.R
 [DEG_analysis.R](https://github.com/carternewt/RNA_Seq/blob/aa078881ca7aa4bf487487230f79c3f31b62ec4b/DEG_analysis.R) is an R script that performs a differential expression analysis at a gene-level using the output from [project.sh](https://github.com/carternewt/RNA_Seq/blob/36b39dfb29bb867d99225d302070ba4fbc6c4406/project.sh). 
 
-The first part of [DEG_analysis.R](https://github.com/carternewt/RNA_Seq/blob/aa078881ca7aa4bf487487230f79c3f31b62ec4b/DEG_analysis.R) is setting the working directory and loading in the packages used in the script. 
+The first part of [DEG_analysis.R](https://github.com/carternewt/RNA_Seq/blob/aa078881ca7aa4bf487487230f79c3f31b62ec4b/DEG_analysis.R) is setting the working directory and loading in the packages used in the script. The `setwd()` command should contain the file path you want files to be saved to. Most commands in R give you the option to designate a file path, as well. 
