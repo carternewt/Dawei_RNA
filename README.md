@@ -347,6 +347,36 @@ Going back to `txdb <- makeTxDbFromGFF('C:/Users/cnewt/Yang/Dawei_RNA/counts/TAI
 
 `k <- keys(txdb, keytype = 'TXNAME')` will pull out all transcript IDs from the "txdb" variable that we generated previously.  
 
-`tx_map <- select(txdb, keys = k, columns = 'GENEID', keytype = 'TXNAME')` is going to create a data frame that maps transcript IDs to gene IDs. If you open the "tx_map" variable in RStudio by either clicking ont he variable in your Environment window or by typing `view(tx_map)` in the command line you should be able to see what this looks like in your Source window. 
+`tx_map <- select(txdb, keys = k, columns = 'GENEID', keytype = 'TXNAME')` is going to create a data frame that maps transcript IDs to gene IDs. If you open the "tx_map" variable in RStudio by either clicking on the variable in your Environment window or by typing `view(tx_map)` in the command line, you should be able to see what this looks like in your Source window. 
 
-![Example fo tx_map data frame](
+![Example fo tx_map data frame](https://github.com/carternewt/RNA_Seq/blob/428e4ac7ad2fceee102948eac123c0cc29d5cd44/images/image8.png)
+
+You'll also notice that both columns in "tx_map", the values either begin with "transcript:" or "gene:". If this is not the case for your dataset, please disregard the next two lines of code. However, if this is present in your data frame, we need to remove these prefixes as they will interfere with the code later on. 
+
+```
+tx_map$TXNAME <- gsub('transcript:', '', tx_map$TXNAME)
+tx_map$GENEID <- gsub('gene:', '', tx_map$GENEID)
+```
+We'll use the `gsub()` command, which essentially functions like a find and replace command. For `gsub()` we supply three arguments: **1)** the character string we want to find (in this case it's either "transcript:" or "gene:") **2)** we want to tell `gsub()` what to replace these found characters with. Since we want to remove these prefixes, we want to supply it with empty quotes. **3)** Lastly, we tell `gsub ()` what column we want it to search for these characters in. After running these commands, we should have a "tx_map" variable where the columns explicitly contain the transcript or gene IDs and no other miscellaneous information. 
+
+Now, we'll use the package tximport to read in the "abundance.h5" files and convert their counts into a gene-level count dataset. `txi.kallisto <- tximport(files, type = 'kallisto', tx2gene = tx_map, ignoreAfterBar = TRUE)` the `tximport()` command requires four major arguments. **1)** we need to supply the location of our "abundance.h5" files in which we have a variable created that provides a list of the file paths to all "abundance.h5" called "files" **2)** we need to indicate what kind of data the files we are importing were generated from. In this case, we are supplying files from kallisto. **3)** the argument `tx2gene =` is asking for us to supply a data frame that can convert from transcript IDs to gene IDs. Thus, we supply the name of the dataframe we generated earlier containing this. **4)** the `ignoreAfterBar =` argument helps in processing transcript IDs. 
+
+We'll now load in data that is going to help edgeR understand the groups we have in our RNA-Seq dataset.
+```
+meta <- read.csv('meta.csv')
+str(meta)
+meta$Genotype <- as.factor(meta$Genotype)
+meta$Time <- as.factor(meta$Time)
+```
+Similar to what we did previously with [h5_files_meta.csv](https://github.com/carternewt/RNA_Seq/blob/0e5673b2321b0ff4aff1696e830dece585a9d02d/h5_files_meta.csv), we'll now import another CSV file, [meta.csv](https://github.com/carternewt/RNA_Seq/blob/06911540d0a1f5b2788ca078b89aacfc7ef6c579/meta.csv). Once imported in as a data frame, we'll use the `str()` command to check how the values under each column are categorized as. Typically, values can be categroized as integers (int), numeric (num), characters (chr), or factors (Factor). if we have a column where we want rows grouped together because maybe they're the same genotype or time point, then we want to convert the column that defines those groups to a Factor. Thus, the "Genotype" and "Time" columns in [meta.csv](https://github.com/carternewt/RNA_Seq/blob/06911540d0a1f5b2788ca078b89aacfc7ef6c579/meta.csv) need to be converted to factors so that the rows are correctly grouped. `as.factor()` command is able to change values under a column to factors. Once we've run the two `as.factor()` commands you can check that it was successful by rerunning `str()` and checking if the "Genotype" and "Time" column are now listed as "Factor." 
+
+Now we're gonna convert this data frame into a matrix that edgeR can better understand. 
+```
+Group <- factor(paste(meta$Genotype,meta$Time,sep='.'))
+meta_compiled <- cbind(meta, Group=Group)
+meta_compiled <- model.matrix(~0+Group)
+colnames(meta_compiled) <- levels(Group)
+```
+First, we're essentially going to create a new column where we combine the "Genotype" and "Time" columns into one value. `Group <- factor(paste(meta$Genotype,meta$Time,sep='.'))` is going to take the "meta" data frame and for each row it will take the value found in "Genotype" and "Time" and merge them into one value (e.g., A.1, A.2, A.3, etc.) and then store this into a list where unique groups will be identified. We'll then take these new values we generated and create a new dataframe where we merge the "meta" variable and these new values together. `meta_compiled <- cbind(meta, Group=Group)` this command will result in a variable called "meta_compiled" that will look like the following: 
+
+![meta_compiled](
