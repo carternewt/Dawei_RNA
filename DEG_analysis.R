@@ -18,10 +18,9 @@ files <- file.path('C:/Users/cnewt/Yang/Dawei_RNA/h5_files', samples$sample, 'ab
 txdb <- makeTxDbFromGFF('C:/Users/cnewt/Yang/Dawei_RNA/counts/TAIR10_DNA.gtf')
 k <- keys(txdb, keytype = 'TXNAME')
 tx_map <- select(txdb, keys = k, columns = 'GENEID', keytype = 'TXNAME')
-tx2gene <- tx_map
-tx2gene$TXNAME <- gsub('transcript:', '', tx2gene$TXNAME)
-tx2gene$GENEID <- gsub('gene:', '', tx2gene$GENEID)
-txi.kallisto <- tximport(files, type = 'kallisto', tx2gene = tx2gene, ignoreAfterBar = TRUE)
+tx_map$TXNAME <- gsub('transcript:', '', tx_map$TXNAME)
+tx_map$GENEID <- gsub('gene:', '', tx_map$GENEID)
+txi.kallisto <- tximport(files, type = 'kallisto', tx2gene = tx_map, ignoreAfterBar = TRUE)
 meta <- read.csv('meta.csv')
 str(meta)
 meta$Genotype <- as.factor(meta$Genotype)
