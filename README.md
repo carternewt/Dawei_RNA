@@ -377,6 +377,10 @@ meta_compiled <- cbind(meta, Group=Group)
 meta_compiled <- model.matrix(~0+Group)
 colnames(meta_compiled) <- levels(Group)
 ```
-First, we're essentially going to create a new column where we combine the "Genotype" and "Time" columns into one value. `Group <- factor(paste(meta$Genotype,meta$Time,sep='.'))` is going to take the "meta" data frame and for each row it will take the value found in "Genotype" and "Time" and merge them into one value (e.g., A.1, A.2, A.3, etc.) and then store this into a list where unique groups will be identified. We'll then take these new values we generated and create a new dataframe where we merge the "meta" variable and these new values together. `meta_compiled <- cbind(meta, Group=Group)` this command will result in a variable called "meta_compiled" that will look like the following: 
+First, we're essentially going to create a new column where we combine the "Genotype" and "Time" columns into one value. `Group <- factor(paste(meta$Genotype,meta$Time,sep='.'))` is going to take the "meta" data frame, and for each row, it will take the value found in "Genotype" and "Time" and merge them into one value (e.g., A.1, A.2, A.3, etc.) and then store this into a list where unique groups will be identified. We'll then take these new values we generated and create a new data frame where we merge the "meta" variable and these new values together. `meta_compiled <- cbind(meta, Group=Group)` this command will result in a variable called "meta_compiled" that will look like the following: 
 
-![meta_compiled](
+![meta_compiled](https://github.com/carternewt/RNA_Seq/blob/ed7aa5121084620d8d7ebbde83f88917566403bc/images/image9.png)
+
+Then, we need to convert this data frame into a matrix that downstream commands can interpret. `meta_compiled <- model.matrix(~0+Group)` is going to create our matrix where `colnames(meta_compiled) <- levels(Group)` is going to change the name of the columns in the matrix as the former command will include unnecessary info in the column names so we'll need to clean it. Our final matrix should look like the following: 
+
+
