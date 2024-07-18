@@ -34,7 +34,6 @@ keep_compiled <- filterByExpr(counts, meta_compiled)
 counts <- counts[keep_compiled, , keep.lib.sizes=FALSE]
 counts <- calcNormFactors(counts, method='TMM')
 counts <- normLibSizes(counts)
-counts_matrix <- as.matrix(counts$counts)
 
 #DEG----
 counts <- estimateDisp(counts, meta_compiled)
