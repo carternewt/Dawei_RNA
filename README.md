@@ -498,3 +498,5 @@ Our first line is generating the DGEGLM object as already mentioned. `A1_col24_d
 You can then go on to filter this dataset by values in various columns, such as pulling out DEGs that have a log~2~FC value greater than 0.5 `A1_col24_deg_df <- A1_col24_deg_df[A1_col24_deg_df$logFC > 0.5, ]`. 
 
 That's then pretty much the gist of it! 
+
+[Analysis4.R](https://github.com/carternewt/RNA_Seq/blob/bb6a2e8fda857e53349267003fb3abe3f78c2da8/Analysis4.R) is practically the exact same as [DEG_analysis.R](https://github.com/carternewt/RNA_Seq/blob/e26113fcea9ee407c6ba793deff1a47117249c11/DEG_analysis.R) except it contains file path changes that cater to working on the Sapelo servers. Getting an R script to work on the Sapelo servers takes some time to explain. It is only really necessary when you need the computing power (in which, doing this particular analysis, the script encodes demanded more computing power). If you have an interest in learning how to do this, I can try to put together a workflow explaining how to set this up. 
