@@ -383,4 +383,118 @@ First, we're essentially going to create a new column where we combine the "Geno
 
 Then, we need to convert this data frame into a matrix that downstream commands can interpret. `meta_compiled <- model.matrix(~0+Group)` is going to create our matrix where `colnames(meta_compiled) <- levels(Group)` is going to change the name of the columns in the matrix as the former command will include unnecessary info in the column names so we'll need to clean it. Our final matrix should look like the following: 
 
+![meta_compiled matrix](https://github.com/carternewt/RNA_Seq/blob/e26113fcea9ee407c6ba793deff1a47117249c11/images/image10.png)
 
+If done correctly, the instance of a "1" appearing under a column will denote a technical/biological replicate for that condition. Thus, in the context of this RNA-Seq dataset, each of these columns will have three rows containing a "1" while all others are "0." 
+
+Lastly, we are going to generate our gene-level read count dataset. This dataset will be utilized for differential expression analysis, and before that, we must **1)** filter out lowly expressed genes and **2)** normalize each RNA-Seq sample based on the library size. 
+
+```
+counts <- DGEList(txi.kallisto$counts, samples = meta)
+keep_compiled <- filterByExpr(counts, meta_compiled) 
+counts <- counts[keep_compiled, , keep.lib.sizes=FALSE]
+counts <- calcNormFactors(counts, method='TMM')
+counts <- normLibSizes(counts)
+```
+
+`counts <- DGEList(txi.kallisto$counts, samples = meta)` is going to create a variable called "counts" that will be a DGEList object. A DGEList object is a file format that edgeR has created and needs for subsequent commands to work. To create this DGEList object, we need to supply the `DGEList()` command two arguments. **1)** we need to denote where the raw counts are coming from. Thus, we reference the "txi.kallisto" variable we created from our "abundance.h5" files and specifically pull out the raw count data by typing `txi.kallisto$counts`. Next, we need to provide `DGEList()` information on how the dataset is structured regarding grouping. We'll supply the "meta" variable we generated through `samples = meta`. 
+
+With a DGEList object encoded by the variable "counts" we can begin cleaning up our raw counts. First is filtering out lowly expressed genes. `keep_compiled <- filterByExpr(counts, meta_compiled)` This command implements a filtering strategy that keeps genes that exceed a minimum count value calculated by the command. If you wish to better understand this command, the original paper where this strategy was proposed was published by [Chen et al., 2016](https://f1000research.com/articles/5-1438). The variable "keep_compiled" is going to be a logical vector that contains a list of genes that were deemed worthwhile. Once we have this variable we can then filter our "counts" variable to only retain the worthwhile genes. `counts <- counts[keep_compiled, , keep.lib.sizes=FALSE]` this command employs this action and also adjusts library sizes to fit the new filtered datasets. 
+
+With our "counts" variable now filtered for lowly expressed genes, we can normalize our samples based on library size. First, we need to calculate scaling factors that can be used to convert our original library sizes into normalized library sizes. `counts <- calcNormFactors(counts, method='TMM')` this will generate our scaling factors, and the `method='TMM'` tells `calcNormFactors()` to use the trimmed mean of M-values for calculating these scaling factors. There are other methods, but the various methods seem to have very little impact on the DEGs identified later on, as shown in [this](https://davetang.github.io/muse/edger.html#Installation) script using a test data set. Now we can generate out normalized libraries with `counts <- normLibSizes(counts)`.
+
+### Differentially Expressed Genes (DEGs)
+
+With the count data normalized, we can now perform differential expression analysis. First, we need to calculate the amount of natural variation that may exist across all of our samples. `counts <- estimateDisp(counts, meta_compiled)` takes the grouping information we provide in "meta_compiled" and then will calculate on our DGEList object "counts" dispersion estimates. Doing this step is critical in ensuring accuracy in our downstream analysis so that natural variations that may exist between technical replicates or biological replicates don't get misconstrued.
+
+> **Note:** The dispersion estimation code may take several minutes to run. Don't terminate the code.
+
+Next, we can fit a negative binomial generalized log-linear model to our read counts. This is a mouthful, and I'll try my best to break it down.
+
+- First of all, we are dealing with count data which means we are limited to our data being represented by three distributions. Either a Poisson, binomial, or negative binomial distribution. To cut to the chase, a negative binomial distribution is our best model as it is more suited for overdispersed data.  
+- We use a generalized log-linear model due to our multifactorial data and its capacity to work with nonnormally distributed data.
+
+To run our negative binomial generalized log-linear model, we'll run `fit_compiled <- glmQLFit(counts, meta_compiled)`. this will generate the "fit_compiled" variable, which is a DGEGLM object. This DGEGLM object can then be passed to `glmQLFTest()`, which employs a quasi-likelihood F-test to test for differentially expressed genes. 
+
+We can now create a matrix that consists of all the potential comparisons we'd like to make to identify DEGs. Make sure you reference the "meta" variable to ensure you call on the correct samples. 
+
+```
+compiled_contrasts <- makeContrasts(
+  col10 = A.2-A.1,
+  col30 = A.3-A.1,
+  col1 = A.4-A.1,
+  col6 = A.5-A.1,
+  col24 = A.6-A.1,
+  col48 = A.7-A.1,
+  npr10 = B.2-B.1,
+  npr30 = B.3-B.1,
+  npr1 = B.4-B.1,
+  npr6 = B.5-B.1,
+  npr24 = B.6-B.1,
+  npr48 = B.7-B.1,
+  sid10 = C.2-C.1,
+  sid30 = C.3-C.1,
+  sid1 = C.4-C.1,
+  sid6 = C.5-C.1,
+  sid24 = C.6-C.1,
+  sid48 = C.7-C.1,
+  tga10 = D.2-D.1,
+  tga30 = D.3-D.1,
+  tga1 = D.4-D.1,
+  tga6 = D.5-D.1,
+  tga24 = D.6-D.1,
+  tga48 = D.7-D.1,
+  col_npr0 = B.1-A.1,
+  col_npr10 = B.2-A.2,
+  col_npr30 = B.3-A.3,
+  col_npr1 = B.4-A.4,
+  col_npr6 = B.5-A.5,
+  col_npr24 = B.6-A.6,
+  col_npr48 = B.7-A.7,
+  col_sid0 = C.1-A.1,
+  col_sid10 = C.2-A.2,
+  col_sid30 = C.3-A.3,
+  col_sid1 = C.4-A.4,
+  col_sid6 = C.5-A.5,
+  col_sid24 = C.6-A.6,
+  col_sid48 = C.7-A.7,
+  col_tga0 = D.1-A.1,
+  col_tga10 = D.2-A.2,
+  col_tga30 = D.3-A.3,
+  col_tga1 = D.4-A.4,
+  col_tga6 = D.5-A.5,
+  col_tga24 = D.6-A.6,
+  col_tga48 = D.7-A.7,
+  sid_tga0 = C.1-D.1,
+  sid_tga10 = C.2-D.2,
+  sid_tga30 = C.3-D.3,
+  sid_tga1 = C.4-D.4,
+  sid_tga6 = C.5-D.5,
+  sid_tga24 = C.6-D.6,
+  sid_tga48 = C.7-D.7,
+  levels = meta_compiled)
+```
+
+With all of our comparisons made its now simply generating our DEG lists. The rest of the code in [DEG_analysis.R](https://github.com/carternewt/RNA_Seq/blob/e26113fcea9ee407c6ba793deff1a47117249c11/DEG_analysis.R) is fairly redundant. I'll highlight the main commands you'll utilize. 
+
+To generate a DEG list we'll be using `glmQLFTest()` as mentioned earlier. The two main arguments we have to supply are the "fit_compiled" DGEGLM object, and the indication of what comparison we are making. For example, if we supply `contrast = compiled_contrasts[,'col24']`, we are telling `glmQLFTest()` to find DEGs for the "col24" comparison, which is taking the count data for Col-0 time 0 (A.1) and Col-0 time 24 hours (A.6). You can then change "col24" with whichever comparison you want to make. After that, we can generate a data frame that extracts our DEGs from the newly created variable. `topTags()` does this for us and requires a handful of arguments, most of which are optional. We'll use the "col24" comparison as an example. 
+
+```
+A1_col24_deg <- glmQLFTest(fit_compiled, contrast = compiled_contrasts[,'col24'])
+A1_col24_deg_list <- topTags(A1_col24_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)
+A1_col24_deg_df <- A1_col24_deg_list$table
+A1_col24_deg_df <- A1_col24_deg_df[A1_col24_deg_df$logFC > 0.5, ]
+A1_col24_deg_df <- rownames_to_column(A1_col24_deg_df, var = 'Gene')
+names(A1_col24_deg_df) <- c('Gene', 'logFC_Col0', 'logCPM_Col0', 'F_Col0', 'Pvalue_Col0', 'FDR_Col0')
+```
+
+Our first line is generating the DGEGLM object as already mentioned. `A1_col24_deg_list <- topTags(A1_col24_deg, sort.by = 'logFC', n = 'Inf', p.value = 0.05)` is the implementation of the `topTags()` command to pull out the DEGs from the DGEGLM object. We first, call on the DGEGLM object, then the remaining arguments are optional. `sort.by =` tells `topTags()` if we want to sort the dataset that's generated. `n =` is actually fairly important as, for some reason, `topTags()` defaults to only outputting the top 10 DEGs. If you want all of them, you need to supply 'Inf'. `p.value =` tells `topTags()` the cutoff value for the adjusted p-values. Thus only DEGs with an adjusted p-value equal to or less than the specified value will be in the generated list. This creates a "TopTags" object that we now want to pull our relevant data out of. `A1_col24_deg_df <- A1_col24_deg_list$table` generates a data frame that will consist of rows named after genes and five columns:
+1. log~2~Fold Change value
+2. log~2~Counts-per-Million value
+3. F-statistic
+4. P-value
+5. False Discovery Rate (FDR)
+
+You can then go on to filter this dataset by values in various columns, such as pulling out DEGs that have a log~2~FC value greater than 0.5 `A1_col24_deg_df <- A1_col24_deg_df[A1_col24_deg_df$logFC > 0.5, ]`. 
+
+That's then pretty much the gist of it! 
